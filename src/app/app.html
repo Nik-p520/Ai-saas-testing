@@ -1,9 +1,149 @@
-<div class="min-h-screen flex flex-col items-center justify-center bg-gray-100 dark:bg-gray-900 text-gray-900 dark:text-white">
-  <h1 class="text-4xl font-bold text-blue-500 mb-4">
-    🚀 TailwindCSS is Working!
-  </h1>
+<div class="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-slate-100">
+  <!-- Navbar -->
+  <nav class="bg-white/80 backdrop-blur-md border-b border-slate-200 sticky top-0 z-50">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="flex justify-between items-center h-16">
+        <div class="flex items-center space-x-2">
+          <span class="text-2xl font-bold text-slate-900">🧪 Testee</span>
+        </div>
 
-  <p class="text-lg text-gray-600 dark:text-gray-300">
-    If you see colors and spacing, Tailwind is active!
-  </p>
+        <div class="hidden md:flex items-center space-x-8">
+          <a href="#about" class="text-slate-700 hover:text-blue-600 transition-colors font-medium">About Us</a>
+          <a href="#help" class="text-slate-700 hover:text-blue-600 transition-colors font-medium">Help</a>
+          <a href="#login" class="px-5 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-all shadow-sm hover:shadow-md font-medium">Login</a>
+        </div>
+
+        <button class="md:hidden text-slate-700" (click)="toggleMenu()">
+          {{ isMenuOpen ? '✖' : '☰' }}
+        </button>
+      </div>
+
+      <div [@if]="isMenuOpen" class="md:hidden py-4 space-y-3 border-t border-slate-200">
+        <a href="#about" class="block text-slate-700 hover:text-blue-600 transition-colors font-medium">About Us</a>
+        <a href="#help" class="block text-slate-700 hover:text-blue-600 transition-colors font-medium">Help</a>
+        <a href="#login" class="block text-center px-5 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-all shadow-sm font-medium">Login</a>
+      </div>
+    </div>
+  </nav>
+
+  <!-- Main Section -->
+  <main>
+    <section class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-20 pb-16">
+      <div class="text-center mb-16">
+        <h1 class="text-5xl sm:text-6xl lg:text-7xl font-bold text-slate-900 mb-6 leading-tight">
+          AI-Powered Testing
+          <br />
+          <span class="bg-gradient-to-r from-blue-600 to-cyan-600 bg-clip-text text-transparent">Made Simple</span>
+        </h1>
+        <p class="text-xl text-slate-600 max-w-2xl mx-auto leading-relaxed">
+          Transform your testing workflow with intelligent automation. Test websites instantly with cutting-edge AI technology.
+        </p>
+      </div>
+
+      <!-- Form -->
+      <div class="max-w-3xl mx-auto">
+        <div class="bg-white rounded-2xl shadow-xl p-8 border border-slate-200">
+          <div class="space-y-6">
+            <div>
+              <label for="website-url" class="block text-sm font-semibold text-slate-700 mb-2">Website URL *</label>
+              <input
+                id="website-url"
+                type="url"
+                placeholder="https://example.com"
+                [(ngModel)]="websiteUrl"
+                class="w-full px-4 py-3 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all outline-none text-slate-900"
+              />
+            </div>
+
+            <div class="grid md:grid-cols-2 gap-4">
+              <div>
+                <label for="username" class="block text-sm font-semibold text-slate-700 mb-2">Username (Optional)</label>
+                <input
+                  id="username"
+                  type="text"
+                  placeholder="Username"
+                  [(ngModel)]="username"
+                  class="w-full px-4 py-3 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all outline-none text-slate-900"
+                />
+              </div>
+              <div>
+                <label for="password" class="block text-sm font-semibold text-slate-700 mb-2">Password (Optional)</label>
+                <input
+                  id="password"
+                  type="password"
+                  placeholder="Password"
+                  [(ngModel)]="password"
+                  class="w-full px-4 py-3 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all outline-none text-slate-900"
+                />
+              </div>
+            </div>
+
+            <button
+              (click)="handleTest()"
+              [disabled]="isTestingInProgress"
+              class="w-full px-8 py-4 bg-gradient-to-r from-blue-600 to-cyan-600 text-white rounded-lg hover:from-blue-700 hover:to-cyan-700 transition-all shadow-lg hover:shadow-xl font-semibold text-lg disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center space-x-2"
+            >
+              <span [@if]="isTestingInProgress">Testing...</span>
+              <span [@if]="!isTestingInProgress">Start Test</span>
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Features -->
+      <div class="grid md:grid-cols-3 gap-8 mt-20 max-w-6xl mx-auto">
+        <div class="bg-white rounded-xl p-8 shadow-md border border-slate-200 hover:shadow-lg transition-shadow">
+          <div class="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center mb-4">⚡</div>
+          <h3 class="text-xl font-bold text-slate-900 mb-3">Lightning Fast</h3>
+          <p class="text-slate-600 leading-relaxed">
+            Get instant results with our optimized AI engine. Test multiple scenarios in seconds.
+          </p>
+        </div>
+
+        <div class="bg-white rounded-xl p-8 shadow-md border border-slate-200 hover:shadow-lg transition-shadow">
+          <div class="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center mb-4">🛡️</div>
+          <h3 class="text-xl font-bold text-slate-900 mb-3">Secure & Private</h3>
+          <p class="text-slate-600 leading-relaxed">
+            Your credentials are encrypted and never stored. Complete privacy guaranteed.
+          </p>
+        </div>
+
+        <div class="bg-white rounded-xl p-8 shadow-md border border-slate-200 hover:shadow-lg transition-shadow">
+          <div class="w-12 h-12 bg-blue-100 flex items-center justify-center mb-4">🧪</div>
+          <h3 class="text-xl font-bold text-slate-900 mb-3">Comprehensive Tests</h3>
+          <p class="text-slate-600 leading-relaxed">
+            From functionality to performance, get detailed insights on every aspect.
+          </p>
+        </div>
+      </div>
+    </section>
+
+    <!-- About -->
+    <section id="about" class="bg-white py-20 border-t border-slate-200 text-center">
+      <h2 class="text-4xl font-bold text-slate-900 mb-6">About Us</h2>
+      <p class="text-lg text-slate-600 leading-relaxed max-w-3xl mx-auto">
+        Testee is a revolutionary AI-powered testing platform designed to simplify and accelerate
+        your QA process.
+      </p>
+    </section>
+
+    <!-- Help -->
+    <section id="help" class="bg-slate-50 py-20 text-center">
+      <h2 class="text-4xl font-bold text-slate-900 mb-6">Need Help?</h2>
+      <p class="text-lg text-slate-600 leading-relaxed mb-8">
+        Our support team is here to assist you 24/7.
+      </p>
+      <a href="mailto:support@testee.ai" class="inline-block px-8 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-all shadow-md hover:shadow-lg font-semibold">
+        Contact Support
+      </a>
+    </section>
+  </main>
+
+  <!-- Footer -->
+  <footer class="bg-slate-900 text-slate-300 py-12 border-t border-slate-800 text-center">
+    <div class="flex items-center justify-center space-x-2 mb-4">
+      🧪 <span class="text-xl font-bold text-white">Testee</span>
+    </div>
+    <p class="text-sm">© 2025 Testee. All rights reserved. AI-powered testing made simple.</p>
+  </footer>
 </div>

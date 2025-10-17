@@ -1,12 +1,33 @@
-import { Component, signal } from '@angular/core';
-import { RouterOutlet } from '@angular/router';
-
+import { Component } from '@angular/core';
+import { FormsModule } from '@angular/forms';
 @Component({
   selector: 'app-root',
-  imports: [RouterOutlet],
+  standalone: true, 
+  imports: [FormsModule],
   templateUrl: './app.html',
-  styleUrl: './app.css'
 })
-export class App {
-  protected readonly title = signal('ai-saas-testing-platform');
+export class AppComponent {
+  websiteUrl: string = '';
+  username: string = '';
+  password: string = '';
+  isMenuOpen: boolean = false;
+  isTestingInProgress: boolean = false;
+
+  handleTest() {
+    if (!this.websiteUrl) {
+      alert('Please enter a website URL');
+      return;
+    }
+
+    this.isTestingInProgress = true;
+
+    setTimeout(() => {
+      this.isTestingInProgress = false;
+      alert('Test completed! (Demo mode)');
+    }, 2000);
+  }
+
+  toggleMenu() {
+    this.isMenuOpen = !this.isMenuOpen;
+  }
 }
