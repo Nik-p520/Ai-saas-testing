@@ -1,9 +1,16 @@
 import { Routes } from '@angular/router';
-import { AppComponent } from './app'; // your standalone component
-
+import { LandingComponent } from './pages/landing/landing';
+import { LoginComponent } from './pages/auth/login/login';
+import { SignupComponent } from './pages/auth/signup/signup';
 export const appRoutes: Routes = [
+  { path: '', component: LandingComponent },
   {
-    path: '',         // default route
-    component: AppComponent
+    path: 'login', // login page
+    component: LoginComponent
   },
+  { path: 'signup', component: SignupComponent },
+  {
+    path: '**', // fallback for unknown routes
+    redirectTo: ''
+  }
 ];  
