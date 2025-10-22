@@ -1,0 +1,29 @@
+<div class="bg-sidebar text-sidebar-foreground flex flex-col h-full border-r border-sidebar-border">
+  <!-- Sidebar Header / Logo -->
+  <div class="px-4 py-6 flex items-center justify-center border-b border-sidebar-border">
+    <span
+      *ngIf="open"
+      class="bg-gradient-primary bg-clip-text text-transparent text-xl font-bold tracking-wide"
+    >
+      🧪 Testee
+    </span>
+    <span *ngIf="!open" class="text-sidebar-active text-2xl font-bold">🧪</span>
+  </div>
+
+  <!-- Sidebar Menu -->
+  <nav class="flex-1 px-2 py-4 space-y-1 overflow-y-auto">
+    <a
+      *ngFor="let item of items"
+      [routerLink]="item.url"
+      routerLinkActive="bg-sidebar-active text-white shadow-md"
+      [routerLinkActiveOptions]="{ exact: true }"
+      class="flex items-center gap-3 px-4 py-2.5 rounded-lg text-sm font-medium transition-all duration-200
+             hover:bg-sidebar-active/80 hover:text-white"
+    >
+      <i-lucide [name]="item.icon" class="h-5 w-5"></i-lucide>
+      <span>{{ item.title }}</span>
+    </a>
+  </nav>
+
+</div>
+

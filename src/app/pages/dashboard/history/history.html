@@ -1,0 +1,36 @@
+<div class="space-y-6 p-6 animate-fade-in">
+  <div>
+    <h1 class="text-3xl font-bold bg-gradient-primary bg-clip-text text-transparent">
+      Test History
+    </h1>
+    <p class="text-foreground/70 mt-1">
+      View all your previous test executions
+    </p>
+  </div>
+
+  <!-- Search input -->
+  <div class="relative max-w-md">
+    <svg 
+      class="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-foreground/50"
+      fill="none"
+      stroke="currentColor"
+      stroke-width="2"
+      viewBox="0 0 24 24"
+      xmlns="http://www.w3.org/2000/svg"
+    >
+      <path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-4.35-4.35m0 0A7.5 7.5 0 1112 4.5a7.5 7.5 0 014.65 12.15z"></path>
+    </svg>
+
+    <input
+      type="search"
+      placeholder="Search by URL..."
+      [(ngModel)]="searchQuery"
+      class="w-full pl-10 px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all outline-none text-slate-900 bg-background"
+    />
+  </div>
+
+  <!-- Add spacing here -->
+  <div class="mt-4">
+    <app-test-history-table [filter]="searchQuery"></app-test-history-table>
+  </div>
+</div>

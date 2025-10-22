@@ -1,0 +1,180 @@
+<div class="min-h-screen">
+  <!-- Header -->
+  <div class="border-b ">
+    <div class="max-w-5xl mx-auto px-4 py-8">
+      <h1
+        class="text-4xl font-bold bg-gradient-to-r from-blue-600 to-indigo-500 bg-clip-text text-transparent mb-2"
+      >
+        Test Result
+      </h1>
+      <p class="text-gray-500 text-lg">
+        AI-generated Playwright test report preview
+      </p>
+    </div>
+  </div>
+
+  <!-- Loading Spinner -->
+  <div
+    *ngIf="isLoading || testResult.status === 'processing'"
+    class="flex flex-col items-center justify-center mt-20"
+  >
+    <div
+      class="w-12 h-12 border-4 border-blue-500 border-t-transparent rounded-full animate-spin"
+    ></div>
+    <p class="mt-4 text-gray-600">Running test, please wait...</p>
+  </div>
+
+  <!-- Main Content -->
+  <div
+    *ngIf="!isLoading && testResult.status !== 'processing'"
+    class="max-w-5xl mx-auto px-4 py-8 space-y-8"
+  >
+    <!-- Summary -->
+    <div class="bg-gradient-to-r from-blue-50 to-blue-100 border border-border/50 rounded-2xl shadow p-6">
+      <div class="flex justify-between items-center">
+        <div>
+          <h2 class="text-xl font-semibold flex items-center gap-2">
+            <lucide-icon
+              [name]="CheckCircle2"
+              class="text-green-500"
+            ></lucide-icon>
+            {{ testResult.websiteUrl }}
+          </h2>
+          <p class="text-sm text-gray-500 mt-1">
+            Executed at {{ testResult.executionTime | date: 'medium' }}
+          </p>
+        </div>
+        <span
+          class="px-3 py-1 text-sm rounded-full font-medium"
+          [ngClass]="getStatusClass(testResult.status)"
+        >
+          {{ testResult.status | titlecase }}
+        </span>
+      </div>
+      <div
+        class="mt-4 grid grid-cols-2 md:grid-cols-4 gap-4 text-sm text-gray-600"
+      >
+        <p><strong>Duration:</strong> {{ testResult.duration }}</p>
+        <p><strong>Browser:</strong> {{ testResult.browser }}</p>
+        <p><strong>Test ID:</strong> {{ testResult.id }}</p>
+      </div>
+    </div>
+
+    <!-- Logs -->
+    <div class="bg-gradient-to-r from-blue-50 to-blue-100 border border-border/50 rounded-2xl shadow p-6">
+      <h3 class="text-lg font-semibold mb-4 flex items-center gap-2">
+        <lucide-icon [name]="Terminal" class="text-yellow-500"></lucide-icon>
+        Execution Logs
+      </h3>
+      <div
+        class="bg-gray-900 text-gray-100 p-4 font-mono text-sm max-h-64 overflow-y-auto rounded-lg whitespace-pre-wrap"
+      >
+        <div *ngFor="let log of testResult.logs">• {{ log }}</div>
+      </div>
+    </div>
+
+    <!-- 🐞 Bugs Detected -->
+    <div *ngIf="testResult.bugs.length" class="bg-gradient-to-r from-blue-50 to-blue-100 border border-border/50 rounded-2xl shadow p-6">
+      <h3 class="text-lg font-semibold mb-4 flex items-center gap-2">
+        <lucide-icon [name]="Bug" class="text-red-500"></lucide-icon>
+        Bugs Detected
+      </h3>
+      <div class="space-y-4">
+        <div
+          *ngFor="let bug of testResult.bugs"
+          class="p-4 border rounded-lg bg-red-50 border-red-200"
+        >
+          <p class="font-semibold text-red-700">{{ bug.title }}</p>
+          <p class="text-sm text-red-600 mt-1">{{ bug.description }}</p>
+          <span
+            class="mt-2 inline-block text-xs px-2 py-1 rounded bg-red-200 text-red-800 font-medium"
+            >Severity: {{ bug.severity | titlecase }}</span
+          >
+        </div>
+      </div>
+    </div>
+
+        <!-- 💡 Recommendations -->
+    <div *ngIf="testResult.recommendations.length" class="bg-gradient-to-r from-blue-50 to-blue-100 border border-border/50 rounded-2xl shadow p-6">
+      <h3 class="text-lg font-semibold mb-4 flex items-center gap-2">
+        <lucide-icon [name]="Lightbulb" class="text-yellow-500"></lucide-icon>
+        AI Recommendations
+      </h3>
+      <div class="space-y-4">
+        <div
+          *ngFor="let rec of testResult.recommendations"
+          class="p-4 border rounded-lg bg-yellow-50 border-yellow-200"
+        >
+          <p class="font-semibold text-yellow-700">{{ rec.title }}</p>
+          <p class="text-sm text-yellow-600 mt-1">{{ rec.description }}</p>
+          <div class="mt-2 flex gap-2 text-xs">
+            <span
+              class="px-2 py-1 rounded bg-yellow-200 text-yellow-800 font-medium"
+              >Impact: {{ rec.impact | titlecase }}</span
+            >
+            <span
+              class="px-2 py-1 rounded bg-blue-200 text-blue-800 font-medium"
+              >Category: {{ rec.category }}</span
+            >
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Screenshots -->
+ <div *ngIf="testResult.screenshots.length" class="bg-gradient-to-r from-blue-50 to-blue-100 border border-border/50 rounded-2xl shadow p-6">
+  <h3 class="text-lg font-semibold mb-4">Screenshots</h3>
+  <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4">
+    <div *ngFor="let shot of testResult.screenshots" class="text-center">
+      <img
+        [src]="shot.url"
+        alt="Test Screenshot"
+        class="rounded-lg border hover:scale-105 transition-transform duration-200"
+      />
+      <p class="text-sm text-muted-foreground mt-2">{{ shot.caption }}</p>
+    </div>
+  </div>
+</div>
+
+
+    <!-- Script -->
+    <div class="bg-gradient-to-r from-blue-50 to-blue-100 border border-border/50 rounded-2xl shadow p-6">
+      <div class="flex justify-between items-center mb-4">
+        <h3 class="text-lg font-semibold flex items-center gap-2">
+          <lucide-icon [name]="Code" class="text-purple-500"></lucide-icon>
+          AI-Generated Script
+        </h3>
+        <button
+          class="flex items-center gap-2 px-3 py-1 rounded text-white transition"
+          [ngClass]="copied ? 'bg-green-600 hover:bg-green-700' : 'bg-blue-600 hover:bg-blue-700'"
+          (click)="copyScript()"
+        >
+          <lucide-icon [name]="Copy" size="16"></lucide-icon>
+          {{ copied ? 'Copied!' : 'Copy Script' }}
+        </button>
+      </div>
+      <pre
+        class="bg-gray-900 text-green-300 p-4 font-mono text-sm max-h-96 overflow-y-auto rounded-lg whitespace-pre-wrap"
+      ><code>{{ testResult.script }}</code></pre>
+    </div>
+
+    <!-- Actions -->
+    <div class="flex justify-end gap-3">
+      <button
+        (click)="handleRerun()"
+        class="flex items-center gap-2 px-4 py-2 rounded-lg bg-blue-600 text-white hover:bg-blue-700 transition"
+      >
+        <lucide-icon [name]="RotateCw" size="18" class="text-white"></lucide-icon>
+        Re-run Test
+      </button>
+
+      <button
+        (click)="handleDownload()"
+        class="flex items-center gap-2 px-4 py-2 rounded-lg bg-gray-200 text-gray-800 hover:bg-gray-300 transition"
+      >
+        <lucide-icon [name]="Download" size="18" class="text-gray-700"></lucide-icon>
+        Download Report
+      </button>
+    </div>
+  </div>
+</div>

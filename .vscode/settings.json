@@ -1,17 +1,3 @@
 {
-  // Tell VS Code to treat CSS as PostCSS (so @tailwind is recognized)
-  "files.associations": {
-    "*.css": "postcss"
-  },
-
-  // Enable Tailwind IntelliSense globally in this workspace
-  "editor.quickSuggestions": {
-    "strings": true
-  },
-  "tailwindCSS.includeLanguages": {
-    "plaintext": "html",
-    "typescript": "javascript",
-    "css": "postcss"
-  },
-  "tailwindCSS.emmetCompletions": true
+    "typescript.tsdk": "node_modules\\typescript\\lib"
 }

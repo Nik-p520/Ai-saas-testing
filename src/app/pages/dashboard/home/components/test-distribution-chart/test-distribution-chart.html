@@ -1,0 +1,20 @@
+<div class="bg-gradient-to-r from-blue-50 to-blue-100 border border-border/50 rounded-2xl shadow p-6">
+  
+  <!-- Chart Header -->
+  <div class="mb-4">
+    <h2 class="text-xl font-semibold">
+      Test Status Distribution
+    </h2>
+  </div>
+
+  <!-- Chart Canvas -->
+  <div class="w-full h-64">
+    <canvas baseChart
+      [data]="pieChartData"
+      [labels]="pieChartLabels"
+      [type]="'pie'"
+      [options]="pieChartOptions">
+    </canvas>
+  </div>
+
+</div>

@@ -1,0 +1,35 @@
+<!-- Dashboard Home Page -->
+<div class="min-h-full text-foreground space-y-6 p-6 animate-fade-in">
+  <!-- Header -->
+  <div>
+    <h1 class="text-3xl font-bold bg-gradient-primary bg-clip-text text-transparent">
+      Dashboard
+    </h1>
+    <p class="text-foreground/70 mt-1">
+      Overview of your automated test executions
+    </p>
+  </div>
+
+  <!-- Stat Cards -->
+  <div class="grid gap-6 md:grid-cols-2 lg:grid-cols-4">
+    <app-stat-card
+      *ngFor="let card of statCards"
+      [title]="card.title"
+      [value]="card.value"
+      [icon]="card.icon"
+      [trend]="card.trend"
+      [trendUp]="card.trendUp"
+    ></app-stat-card>
+  </div>
+
+  <!-- Charts -->
+  <div class="grid gap-6 md:grid-cols-2">
+    <app-test-trends-chart></app-test-trends-chart>
+    <app-test-distribution-chart></app-test-distribution-chart>
+  </div>
+
+  <!-- Table -->
+  <div class="grid gap-6">
+    <app-test-history-table></app-test-history-table>
+  </div> 
+</div>

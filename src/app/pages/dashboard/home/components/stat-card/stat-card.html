@@ -1,0 +1,26 @@
+<div class="bg-white border rounded-2xl shadow p-6">
+  <div class="flex items-center justify-between">
+    
+    <!-- Left: Title, Value, Trend -->
+    <div class="space-y-1">
+      <!-- Title -->
+      <p class="text-sm text-foreground/70">{{ title }}</p>
+      
+      <!-- Value -->
+      <p class="text-3xl font-bold text-foreground">{{ value }}</p>
+      
+      <!-- Trend -->
+      <p *ngIf="trend" 
+         [ngClass]="trendUp ? 'text-success' : 'text-error'" 
+         class="text-xs">
+        {{ trend }}
+      </p>
+    </div>
+
+    <!-- Right: Icon -->
+    <div class="p-3 rounded-lg bg-primary/10 flex items-center justify-center">
+      <lucide-icon [img]="icon" class="h-6 w-6 text-primary"></lucide-icon>
+    </div>
+
+  </div>
+</div>
