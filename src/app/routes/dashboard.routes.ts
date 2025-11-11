@@ -28,7 +28,7 @@ export const DASHBOARD_ROUTES: Routes = [
           import('../pages/dashboard/settings/settings').then(m => m.Settings),
       },
       {
-        path: 'result', // <-- Add this for your result page
+        path: 'result/:id', // <-- Add this for your result page
         loadComponent: () =>
           import('../pages/dashboard/result/result').then(m => m.ResultPageComponent),
       },

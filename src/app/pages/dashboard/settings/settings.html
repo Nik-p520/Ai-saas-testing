@@ -1,37 +1,37 @@
 <div class="space-y-6 p-6 animate-fade-in">
   <!-- Header -->
   <div>
-    <h1 class="text-3xl font-bold bg-gradient-primary bg-clip-text text-transparent">
+    <h1 class="text-3xl font-bold bg-gradient-to-r from-[#ff4c00] to-[#ff914d] bg-clip-text text-transparent">
       Settings
     </h1>
-    <p class="text-muted-foreground mt-1">
+    <p class="text-[#d1bfbf] mt-1">
       Configure your testing platform preferences
     </p>
   </div>
 
   <div class="grid gap-6 max-w-2xl">
     <!-- API Configuration -->
-    <div class="bg-gradient-to-r from-blue-50 to-blue-100 border border-border/50 rounded-2xl shadow p-6">
+    <div class="bg-gradient-to-br from-[#2b1d1d] via-[#231a1b] to-[#1b1313] border border-[#322625] rounded-2xl shadow p-6">
       <div class="mb-4">
-        <h2 class="text-xl font-semibold">API Configuration</h2>
-        <p class="text-sm text-muted-foreground">
+        <h2 class="text-[#ff4c00] text-xl font-semibold">API Configuration</h2>
+        <p class="text-[#d1bfbf] text-sm">
           Configure your OpenAI API settings for test generation
         </p>
       </div>
       <div class="space-y-4">
         <div class="space-y-2">
-          <label for="api-key" class="font-medium">OpenAI API Key</label>
+          <label for="api-key" class="text-[#d1bfbf] font-medium">OpenAI API Key</label>
           <input
             id="api-key"
             type="password"
             [(ngModel)]="apiKey"
             placeholder="sk-..."
-            class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+            class="w-full px-4 py-3 bg-transparent border border-[#322625] rounded-lg focus:ring-2 focus:ring-[#ff4c00] focus:border-transparent transition-all outline-none text-white placeholder-[#a59494]"
           />
         </div>
         <button
           (click)="saveApiKey()"
-          class="flex items-center gap-2 px-4 py-2 rounded-lg bg-blue-600 text-white hover:bg-blue-700 transition"
+          class="flex items-center gap-2 px-4 py-2 rounded-lg bg-gradient-to-r from-[#ff4c00] to-[#79411f] text-white hover:from-[#ff6633] hover:to-[#57301d] transition"
         >
           <!-- Save icon -->
           <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -44,10 +44,10 @@
     </div>
 
     <!-- Test Preferences -->
-    <div class="bg-gradient-to-r from-blue-50 to-blue-100 border border-border/50 rounded-2xl shadow p-6">
+    <div class="bg-gradient-to-br from-[#2b1d1d] via-[#231a1b] to-[#1b1313] border border-[#322625] rounded-2xl shadow p-6">
       <div class="mb-4">
-        <h2 class="text-xl font-semibold">Test Preferences</h2>
-        <p class="text-sm text-muted-foreground">
+        <h2 class="text-[#ff4c00] text-xl font-semibold">Test Preferences</h2>
+        <p class="text-[#d1bfbf] text-sm text-muted-foreground">
           Customize your testing behavior
         </p>
       </div>
@@ -56,12 +56,12 @@
         <!-- Auto-run Tests -->
         <div class="flex items-center justify-between">
           <div class="space-y-0.5">
-            <label class="font-medium">Auto-run Tests</label>
-            <p class="text-sm text-muted-foreground">Automatically execute tests after generation</p>
+            <label class="text-[#ff4c00] font-medium">Auto-run Tests</label>
+            <p class="text-[#d1bfbf] text-sm text-muted-foreground">Automatically execute tests after generation</p>
           </div>
           <div
             class="w-12 h-6 rounded-full p-1 cursor-pointer transition-colors duration-300"
-            [ngClass]="autoRunTests ? 'bg-blue-600' : 'bg-gray-300'"
+            [ngClass]="autoRunTests ? 'bg-[#ff4c00]' : 'bg-gray-300'"
             (click)="autoRunTests = !autoRunTests"
           >
             <div
@@ -74,12 +74,12 @@
         <!-- Email Notifications -->
         <div class="flex items-center justify-between">
           <div class="space-y-0.5">
-            <label class="font-medium">Email Notifications</label>
-            <p class="text-sm text-muted-foreground">Get notified when tests complete</p>
+            <label class="text-[#ff4c00] font-medium">Email Notifications</label>
+            <p class="text-[#d1bfbf] text-sm text-muted-foreground">Get notified when tests complete</p>
           </div>
           <div
             class="w-12 h-6 rounded-full p-1 cursor-pointer transition-colors duration-300"
-            [ngClass]="emailNotifications ? 'bg-blue-600' : 'bg-gray-300'"
+            [ngClass]="emailNotifications ? 'bg-[#ff4c00]' : 'bg-gray-300'"
             (click)="emailNotifications = !emailNotifications"
           >
             <div
@@ -92,12 +92,12 @@
         <!-- Screenshot on Failure -->
         <div class="flex items-center justify-between">
           <div class="space-y-0.5">
-            <label class="font-medium">Screenshot on Failure</label>
-            <p class="text-sm text-muted-foreground">Capture screenshots when tests fail</p>
+            <label class="text-[#ff4c00] font-medium">Screenshot on Failure</label>
+            <p class="text-[#d1bfbf] text-sm text-muted-foreground">Capture screenshots when tests fail</p>
           </div>
           <div
             class="w-12 h-6 rounded-full p-1 cursor-pointer transition-colors duration-300"
-            [ngClass]="screenshotOnFailure ? 'bg-blue-600' : 'bg-gray-300'"
+            [ngClass]="screenshotOnFailure ? 'bg-[#ff4c00]' : 'bg-gray-300'"
             (click)="screenshotOnFailure = !screenshotOnFailure"
           >
             <div

@@ -18,12 +18,13 @@ export class TestTrendsChartComponent implements OnInit {
       {
         data: [12, 19, 15, 25, 22, 18, 16],
         label: 'Tests',
-        borderColor: '',          // set in ngOnInit
-        backgroundColor: 'rgba(0,0,0,0)',
+        borderColor: '#c8a57a', // warm gold line
+        backgroundColor: 'rgba(200, 165, 122, 0.15)', // soft fill under curve
         borderWidth: 3,
         pointRadius: 4,
-        pointBackgroundColor: '', // set in ngOnInit
+        pointBackgroundColor: '#e2c39b', // lighter point
         pointHoverRadius: 6,
+        pointHoverBackgroundColor: '#f5e6d3',
         tension: 0.4,
       },
     ],
@@ -31,65 +32,48 @@ export class TestTrendsChartComponent implements OnInit {
 
   lineChartOptions: ChartOptions<'line'> = {
     responsive: true,
-    interaction: {
-      mode: 'index',       // show tooltip for all datasets at same x-value
-      intersect: false,    // vertical hover line appears even if not exactly on point
-    },
-    hover: {
-      mode: 'index',
-      intersect: false,
-    },
+    interaction: { mode: 'index', intersect: false },
+    hover: { mode: 'index', intersect: false },
     plugins: {
       legend: { display: false },
       tooltip: {
-        backgroundColor: '', // set in ngOnInit
-        borderColor: '',     // set in ngOnInit
+        backgroundColor: '#2b1d1f', // dark tooltip
+        borderColor: '#8b5e3c',
         borderWidth: 1,
         cornerRadius: 8,
+        titleColor: '#f5e6d3',
+        bodyColor: '#f5e6d3',
         titleFont: { size: 12 },
         bodyFont: { size: 12 },
       },
     },
     scales: {
       x: {
-        ticks: { color: '', font: { size: 12 } },
-        grid: { display: true, drawTicks: false, color: '' },
+        ticks: {
+          color: '#f5e6d3',
+          font: { size: 12, family: 'Poppins' },
+        },
+        grid: {
+          display: true,
+          drawTicks: false,
+          color: 'rgba(245, 230, 211, 0.1)', // faint gridlines
+        },
       },
       y: {
-        ticks: { color: '', font: { size: 12 } },
-        grid: { display: true, drawTicks: false, color: '' },
+        ticks: {
+          color: '#f5e6d3',
+          font: { size: 12, family: 'Poppins' },
+        },
+        grid: {
+          display: true,
+          drawTicks: false,
+          color: 'rgba(245, 230, 211, 0.1)',
+        },
       },
     },
   };
 
-ngOnInit(): void {
-  const getCssVar = (name: string) =>
-    getComputedStyle(document.documentElement).getPropertyValue(name).trim();
-
-  const primary = `hsl(${getCssVar('--primary')})`;
-  const foreground = `hsl(${getCssVar('--foreground')})`;
-  const borderColor = `hsl(${getCssVar('--border')})`;
-  const cardBg = `hsl(${getCssVar('--card')})`;
-  const mutedForeground = `hsl(${getCssVar('--foreground')})`; // for tooltip text
-
-  // Line & points
-  this.lineChartData.datasets[0].borderColor = primary;
-  this.lineChartData.datasets[0].pointBackgroundColor = primary;
-
-  // Tooltip
-  this.lineChartOptions.plugins!.tooltip!.backgroundColor = cardBg;
-  this.lineChartOptions.plugins!.tooltip!.borderColor = borderColor;
-  this.lineChartOptions.plugins!.tooltip!.titleColor = foreground;
-  this.lineChartOptions.plugins!.tooltip!.bodyColor = foreground;
-
-  // Axis ticks
-  this.lineChartOptions.scales!['x']!.ticks!.color = foreground;
-  this.lineChartOptions.scales!['y']!.ticks!.color = foreground;
-
-  // Grid lines
-  const gridColor = `${borderColor}33`; // 20% opacity
-  this.lineChartOptions.scales!['x']!.grid!.color = gridColor;
-  this.lineChartOptions.scales!['y']!.grid!.color = gridColor;
-}
-
+  ngOnInit(): void {
+    // Optional: dynamically adjust with CSS vars if you add them later
+  }
 }

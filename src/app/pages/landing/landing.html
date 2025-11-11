@@ -1,16 +1,16 @@
-<div class="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-slate-100">
+<div class="min-h-screen bg-[linear-gradient(135deg,#201617,#161010,#171010)]">
   <!-- Navbar -->
-  <nav class="bg-white/80 backdrop-blur-md border-b border-slate-200 sticky top-0 z-50">
+  <nav class="bg-[linear-gradient(135deg,#201617,#161010,#171010)]/80 backdrop-blur-md border-b border-[#322625] sticky top-0 z-50">
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
       <div class="flex justify-between items-center h-16">
         <div class="flex items-center space-x-2">
-          <span class="text-3xl font-bold bg-gradient-primary bg-clip-text text-transparent">🧪 Testee</span>
+          <span class="text-3xl font-bold bg-gradient-to-r from-[#ff4c00] to-[#ff914d] bg-clip-text text-transparent">🧪 Testee</span>
         </div>
 
         <div class="hidden md:flex items-center space-x-8">
-          <a href="#about" class="text-slate-700 hover:text-blue-600 transition-colors font-medium">About Us</a>
-          <a href="#help" class="text-slate-700 hover:text-blue-600 transition-colors font-medium">Help</a>
-          <a routerLink="/login" class="px-5 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-all shadow-sm hover:shadow-md font-medium">Login</a>
+          <a href="#about" class="text-[#ff4c00] hover:text-[#f86103] transition-colors font-medium">About Us</a>
+          <a href="#help" class="text-[#ff4c00] hover:text-[#f86103] transition-colors font-medium">Help</a>
+          <a routerLink="/login" class="px-5 py-2 bg-[#ff4c00] text-white rounded-lg hover:bg-[#f86103] transition-all shadow-sm hover:shadow-md font-medium">Login</a>
         </div>
 
         <button class="md:hidden text-slate-700" (click)="toggleMenu()">
@@ -33,50 +33,50 @@
   <main>
     <section class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-20 pb-16">
       <div class="text-center mb-16">
-        <h1 class="text-5xl sm:text-6xl lg:text-7xl font-bold text-slate-900 mb-6 leading-tight">
+        <h1 class="text-5xl sm:text-6xl lg:text-7xl font-bold text-white mb-6 leading-tight">
           Automate Website Testing
           
-          <span class="bg-gradient-to-r from-blue-600 to-cyan-600 bg-clip-text text-transparent">Instantly</span>
+          <span class="bg-gradient-to-r from-[#ff4c00] to-[#ff914d] bg-clip-text text-transparent">Instantly</span>
         </h1>
-        <p class="text-xl text-slate-600 max-w-2xl mx-auto leading-relaxed whitespace-nowrap">
+        <p class="text-xl text-[#d1bfbf] max-w-2xl mx-auto leading-relaxed whitespace-nowrap">
           “Just enter your app’s URL — our AI generates and executes Playwright tests automatically.”
         </p>
       </div>
 
       <!-- Form -->
       <div class="max-w-3xl mx-auto">
-        <div class="bg-gradient-to-r from-blue-50 to-blue-100 border border-border/50 rounded-2xl shadow p-6">
+        <div class="bg-gradient-to-br from-[#2b1d1d] via-[#231a1b] to-[#1b1313] border border-[#322625] rounded-2xl shadow-xl p-6">
           <div class="space-y-6">
             <div>
-              <label for="website-url" class="block text-sm font-semibold text-slate-700 mb-2">Website URL *</label>
+              <label for="website-url" class="block text-sm font-semibold text-[#d1bfbf] mb-2">Website URL *</label>
               <input
                 id="website-url"
                 type="url"
                 placeholder="https://example.com"
                 [(ngModel)]="websiteUrl"
-                class="w-full px-4 py-3 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all outline-none text-slate-900"
+                class="w-full px-4 py-3 bg-transparent border border-[#322625] rounded-lg focus:ring-2 focus:ring-[#ff4c00] transition-all outline-none text-white placeholder-[#a59494]"
               />
             </div>
 
             <div class="grid md:grid-cols-2 gap-4">
               <div>
-                <label for="username" class="block text-sm font-semibold text-slate-700 mb-2">Username (Optional)</label>
+                <label for="username" class="block text-sm font-semibold text-[#d1bfbf] mb-2">Username (Optional)</label>
                 <input
                   id="username"
                   type="text"
                   placeholder="Username"
                   [(ngModel)]="username"
-                  class="w-full px-4 py-3 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all outline-none text-slate-900"
+                  class="w-full px-4 py-3 bg-transparent border border-[#322625] rounded-lg focus:ring-2 focus:ring-[#ff4c00]  transition-all outline-none text-white placeholder-[#a59494]"
                 />
               </div>
               <div>
-                <label for="password" class="block text-sm font-semibold text-slate-700 mb-2">Password (Optional)</label>
+                <label for="password" class="block text-sm font-semibold text-[#d1bfbf] mb-2">Password (Optional)</label>
                 <input
                   id="password"
                   type="password"
                   placeholder="Password"
                   [(ngModel)]="password"
-                  class="w-full px-4 py-3 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all outline-none text-slate-900"
+                  class="w-full px-4 py-3 bg-transparent border border-[#322625] rounded-lg focus:ring-2 focus:ring-[#ff4c00] transition-all outline-none text-white placeholder-[#a59494]"
                 />
               </div>
             </div>
@@ -84,7 +84,7 @@
             <button
               (click)="handleTest()"
               [disabled]="isTestingInProgress"
-              class="w-full px-8 py-4 bg-gradient-to-r from-blue-600 to-cyan-600 text-white rounded-lg hover:from-blue-700 hover:to-cyan-700 transition-all shadow-lg hover:shadow-xl font-semibold text-lg disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center space-x-2"
+              class="w-full px-8 py-4 bg-gradient-to-r from-[#ff4c00] to-[#79411f] text-white rounded-lg hover:from-[#ff6633] hover:to-[#57301d] transition-all shadow-lg font-semibold text-lg disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center space-x-2"
             >
                  <ng-container *ngIf="isTestingInProgress; else startTest">
                    <span>Testing...</span>
@@ -100,26 +100,26 @@
 
       <!-- Features -->
       <div class="grid md:grid-cols-3 gap-8 mt-20 max-w-6xl mx-auto">
-        <div class="bg-white rounded-xl p-8 shadow-md border border-slate-200 hover:shadow-lg transition-shadow">
+        <div class="bg-gradient-to-br from-[#2b1d1d] via-[#231a1b] to-[#1b1313] border border-[#322625] rounded-xl p-8 shadow-md  hover:shadow-lg transition-shadow">
           <div class="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center mb-4">🤖</div>
-          <h3 class="text-xl font-bold text-slate-900 mb-3">AI Test Generation</h3>
-          <p class="text-slate-600 leading-relaxed">
+          <h3 class="text-xl font-bold text-[#ff4c00] mb-3">AI Test Generation</h3>
+          <p class="text-[#d1bfbf]  leading-relaxed">
             Uses Langchain + OpenAI to auto-create Playwright test scripts.
           </p>
         </div>
 
-        <div class="bg-white rounded-xl p-8 shadow-md border border-slate-200 hover:shadow-lg transition-shadow">
+        <div class="bg-gradient-to-br from-[#2b1d1d] via-[#231a1b] to-[#1b1313] border border-[#322625] rounded-xl p-8 shadow-md  hover:shadow-lg transition-shadow">
           <div class="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center mb-4">📊</div>
-          <h3 class="text-xl font-bold text-slate-900 mb-3">Smart Dashboard</h3>
-          <p class="text-slate-600 leading-relaxed">
+          <h3 class="text-xl font-bold text-[#ff4c00] mb-3">Smart Dashboard</h3>
+          <p class="text-[#d1bfbf] leading-relaxed">
             Displays results, screenshots, logs, and test history.
           </p>
         </div>
 
-        <div class="bg-white rounded-xl p-8 shadow-md border border-slate-200 hover:shadow-lg transition-shadow">
+        <div class="bg-gradient-to-br from-[#2b1d1d] via-[#231a1b] to-[#1b1313] border border-[#322625] rounded-xl p-8 shadow-md  hover:shadow-lg transition-shadow">
           <div class="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center mb-4">🔐</div>
-          <h3 class="text-xl font-bold text-slate-900 mb-3">Secure Authentication</h3>
-          <p class="text-slate-600 leading-relaxed">
+          <h3 class="text-xl font-bold text-[#ff4c00] mb-3">Secure Authentication</h3>
+          <p class="text-[#d1bfbf] leading-relaxed">
             Uses JWT + OAuth for safe login and session management.
           </p>
         </div>
@@ -127,9 +127,9 @@
     </section>
 
     <!-- About -->
-    <section id="about" class="bg-white py-20 border-t border-slate-200 text-center">
-      <h2 class="text-4xl font-bold text-slate-900 mb-6">About Us</h2>
-      <p class="text-lg text-slate-600 leading-relaxed max-w-3xl mx-auto">
+    <section id="about" class="py-20 text-center">
+      <h2 class="text-4xl font-bold bg-gradient-to-r from-[#ff4c00] to-[#ff914d] bg-clip-text text-transparent mb-6">About Us</h2>
+      <p class="text-lg text-[#d1bfbf] leading-relaxed max-w-3xl mx-auto">
         We’re building the future of automated web testing.
         Our mission is to simplify QA by letting AI handle repetitive testing tasks — so developers and teams can focus on innovation instead of maintenance.
         The platform combines Langchain, OpenAI, Playwright MCP, and Spring Boot to deliver end-to-end automation that’s smart, reliable, and developer-friendly.
@@ -137,21 +137,21 @@
     </section>
 
     <!-- Help -->
-    <section id="help" class="bg-slate-50 py-20 text-center">
-      <h2 class="text-4xl font-bold text-slate-900 mb-6">Need Help?</h2>
-      <p class="text-lg text-slate-600 leading-relaxed mb-8">
+    <section id="help" class="py-20 text-center">
+      <h2 class="text-4xl font-bold bg-gradient-to-r from-[#ff4c00] to-[#ff914d] bg-clip-text text-transparent mb-6">Need Help?</h2>
+      <p class="text-lg text-[#d1bfbf] leading-relaxed mb-8">
         Our support team is here to assist you 24/7.
       </p>
-      <a href="mailto:support@testee.ai" class="inline-block px-8 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-all shadow-md hover:shadow-lg font-semibold">
+      <a href="mailto:support@testee.ai" class="inline-block px-8 py-3 bg-[#ff4c00] text-white rounded-lg hover:bg-[#f86103] transition-all shadow-sm hover:shadow-md font-medium">
         Contact Support
       </a>
     </section>
   </main>
 
   <!-- Footer -->
-  <footer class="bg-slate-900 text-slate-300 py-12 border-t border-slate-800 text-center">
+  <footer class= " text-slate-300 py-12 border-t border-[#322625] text-center">
     <div class="flex items-center justify-center space-x-2 mb-4">
-      🧪 <span class="text-xl font-bold text-white">Testee</span>
+      🧪 <span class="text-xl font-bold text-[#ff4c00]">Testee</span>
     </div>
     <p class="text-sm">© 2025 Testee. All rights reserved. AI-powered testing made simple.</p>
   </footer>

@@ -2,10 +2,10 @@
 <div class="min-h-full text-foreground space-y-6 p-6 animate-fade-in">
   <!-- Header -->
   <div>
-    <h1 class="text-3xl font-bold bg-gradient-primary bg-clip-text text-transparent">
+    <h1 class="text-3xl font-bold bg-gradient-to-r from-[#ff4c00] to-[#ff914d] bg-clip-text text-transparent">
       Dashboard
     </h1>
-    <p class="text-foreground/70 mt-1">
+    <p class="text-[#d1bfbf] mt-1 text-lg">
       Overview of your automated test executions
     </p>
   </div>
@@ -30,6 +30,6 @@
 
   <!-- Table -->
   <div class="grid gap-6">
-    <app-test-history-table></app-test-history-table>
+    <app-test-history-table [limit]="5" [showViewAllButton]="true"></app-test-history-table>
   </div> 
 </div>

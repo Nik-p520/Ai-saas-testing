@@ -1,29 +1,27 @@
-<div class="bg-sidebar text-sidebar-foreground flex flex-col h-full border-r border-sidebar-border">
+<div class="bg-[linear-gradient(180deg,#25181A,#1F1517,#1F1517)] text-[#d1bfbf] flex flex-col h-full border-r border-[#322625] font-inter">
   <!-- Sidebar Header / Logo -->
-  <div class="px-4 py-6 flex items-center justify-center border-b border-sidebar-border">
+  <div class="px-4 py-6 flex items-center justify-center border-b border-[#322625]">
     <span
       *ngIf="open"
-      class="bg-gradient-primary bg-clip-text text-transparent text-xl font-bold tracking-wide"
+      class="bg-gradient-to-r from-[#ff4c00] to-[#ff914d] bg-clip-text text-transparent text-2xl font-bold tracking-wide"
     >
       🧪 Testee
     </span>
-    <span *ngIf="!open" class="text-sidebar-active text-2xl font-bold">🧪</span>
+    <span *ngIf="!open" class="text-[#ff4c00] text-3xl font-bold">🧪</span>
   </div>
 
   <!-- Sidebar Menu -->
-  <nav class="flex-1 px-2 py-4 space-y-1 overflow-y-auto">
+  <nav class="flex-1 px-3 py-4 space-y-1 overflow-y-auto">
     <a
       *ngFor="let item of items"
       [routerLink]="item.url"
-      routerLinkActive="bg-sidebar-active text-white shadow-md"
+      routerLinkActive="bg-[#332425] text-white shadow-lg"
       [routerLinkActiveOptions]="{ exact: true }"
-      class="flex items-center gap-3 px-4 py-2.5 rounded-lg text-sm font-medium transition-all duration-200
-             hover:bg-sidebar-active/80 hover:text-white"
+      class="flex items-center gap-3 px-4 py-3 rounded-lg text-base font-medium transition-all duration-200
+             hover:bg-[#33242596] hover:text-white hover:shadow-md"
     >
-      <i-lucide [name]="item.icon" class="h-5 w-5"></i-lucide>
+      <i-lucide [name]="item.icon" class="h-5 w-5 text-[#ff4c00]"></i-lucide>
       <span>{{ item.title }}</span>
     </a>
   </nav>
-
 </div>
-
