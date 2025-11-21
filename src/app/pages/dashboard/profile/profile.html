@@ -1,0 +1,171 @@
+<div class="flex flex-col p-6 animate-fade-in">
+  <!-- Header -->
+  <div>
+    <h1
+      class="text-3xl font-bold bg-gradient-to-r from-[#ff4c00] to-[#ff914d] bg-clip-text text-transparent"
+    >
+      Profile Settings
+    </h1>
+    <p class="text-[#d1bfbf] mt-1">
+      Manage your account settings and preferences
+    </p>
+  </div>
+
+  <!-- Profile Info -->
+  <div
+    class="mt-6 w-full max-w-4xl bg-gradient-to-br from-[#2b1d1d] via-[#231a1b] to-[#1b1313] border border-[#322625] rounded-2xl shadow-xl p-6 space-y-6"
+  >
+    <div>
+      <h2 class="text-xl font-semibold text-[#ff4c00]">
+        Profile Information
+      </h2>
+      <p class="text-sm text-[#d1bfbf]">
+        Update your personal info and profile picture
+      </p>
+    </div>
+
+    <div class="pb-6 flex items-center gap-6 border-b border-[#322625]">
+      <div
+        class="h-24 w-24 rounded-full flex items-center justify-center text-2xl font-bold bg-gradient-to-r from-[#ff4c00] to-[#ff914d] text-white"
+      >
+        {{ getInitials(userData.name) }}
+      </div>
+
+      <div class="space-y-2">
+        <button
+          class="border border-[#322625] px-3 py-1.5 text-white hover:border-[#ff4c00] rounded-md text-sm flex items-center gap-2 transition-colors duration-200"
+        >
+          <i class="fa fa-upload"></i> Upload Photo
+        </button>
+        <p class="text-xs text-gray-400">JPG, PNG or GIF. Max size 2MB.</p>
+      </div>
+    </div>
+
+    <div class="grid gap-4">
+      <div>
+        <label class="text-sm font-semibold text-[#d1bfbf]">Full Name</label>
+        <input
+          class="border border-[#322625] rounded-md px-3 py-2 w-full bg-transparent focus:ring-2 focus:ring-[#ff4c00] focus:border-transparent outline-none text-white"
+          [(ngModel)]="userData.name"
+          
+        />
+      </div>
+
+      <div>
+        <label class="text-sm font-semibold text-[#d1bfbf]">Email</label>
+        <input
+          type="email"
+          class="border border-[#322625] rounded-md px-3 py-2 w-full bg-transparent focus:ring-2 focus:ring-[#ff4c00] focus:border-transparent outline-none text-white"
+          [(ngModel)]="userData.email"
+          
+        />
+      </div>
+
+      <div>
+        <label class="text-sm font-semibold text-[#d1bfbf]">Role</label>
+        <input
+          class="border border-[#322625] rounded-md px-3 py-2 w-full bg-transparent focus:ring-2 focus:ring-[#ff4c00] focus:border-transparent outline-none text-white"
+          [(ngModel)]="userData.role"
+          
+        />
+      </div>
+    </div>
+
+    <div class="flex gap-3">
+      <button
+        
+        class="w-40 bg-[#ff4c00] text-white px-6 py-2 rounded-md flex items-center justify-center gap-2 hover:bg-[#f86103] transition-colors duration-200"
+        (click)="isEditingProfile = true"
+      >
+        Save
+      </button>
+
+    </div>
+  </div>
+
+  <!-- Password Section -->
+  <div
+    class="mt-6 w-full max-w-4xl bg-gradient-to-br from-[#2b1d1d] via-[#231a1b] to-[#1b1313] border border-[#322625] rounded-2xl shadow-xl p-6 space-y-6"
+  >
+    <div>
+      <h2 class="text-xl font-semibold text-[#ff4c00]">Password & Security</h2>
+      <p class="text-sm text-[#d1bfbf]">
+        Update your password to keep your account secure
+      </p>
+    </div>
+
+    <button
+      *ngIf="!isChangingPassword"
+      class="bg-[#ff4c00] text-white px-4 py-2 rounded-md flex items-center gap-2 hover:bg-[#f86103] transition-colors duration-200"
+      (click)="isChangingPassword = true"
+    >
+      <i class="fa fa-lock"></i> Change Password
+    </button>
+
+    <div *ngIf="isChangingPassword" class="space-y-4">
+      <div>
+        <label class="text-sm font-semibold text-[#d1bfbf]"
+          >Current Password</label
+        >
+        <input
+          type="password"
+          class="border border-[#322625] rounded-md px-3 py-2 w-full bg-transparent text-white focus:ring-2 focus:ring-[#ff4c00] focus:border-transparent outline-none"
+          [(ngModel)]="passwordData.currentPassword"
+        />
+      </div>
+
+      <div>
+        <label class="text-sm font-semibold text-[#d1bfbf]">New Password</label>
+        <input
+          type="password"
+          class="border border-[#322625] rounded-md px-3 py-2 w-full bg-transparent text-white focus:ring-2 focus:ring-[#ff4c00] focus:border-transparent outline-none"
+          [(ngModel)]="passwordData.newPassword"
+        />
+      </div>
+
+      <div>
+        <label class="text-sm font-semibold text-[#d1bfbf]"
+          >Confirm New Password</label
+        >
+        <input
+          type="password"
+          class="border border-[#322625] rounded-md px-3 py-2 w-full bg-transparent text-white focus:ring-2 focus:ring-[#ff4c00] focus:border-transparent outline-none"
+          [(ngModel)]="passwordData.confirmPassword"
+        />
+      </div>
+
+      <div class="flex gap-3">
+        <button
+          class="bg-[#ff4c00] text-white  px-4 py-2 rounded-md  shadow-lg hover:bg-[#f86103] transition-colors duration-200"
+          (click)="handleChangePassword()"
+        >
+          Update Password
+        </button>
+        <button
+          class="border border-[#322625] text-white  px-4 py-2 rounded-md hover:bg-[#ff4c00] transition-colors duration-200"
+          (click)="isChangingPassword = false"
+        >
+          Cancel
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Logout -->
+  <div
+    class="mt-6 w-full max-w-4xl bg-gradient-to-br from-[#2b1d1d] via-[#231a1b] to-[#1b1313] border border-[#322625] rounded-2xl shadow-xl p-6"
+  >
+    <div>
+      <h2 class="text-xl font-semibold text-[#ff4c00]">Account Actions</h2>
+      <p class="text-sm text-[#d1bfbf]">
+        Manage your session and account access
+      </p>
+    </div>
+    <button
+      class="bg-red-600 text-white px-6 py-2 rounded-md mt-3 flex items-center gap-2 hover:bg-red-700 transition"
+      (click)="handleLogout()"
+    >
+      <i class="fa fa-sign-out-alt"></i> Logout
+    </button>
+  </div>
+</div>

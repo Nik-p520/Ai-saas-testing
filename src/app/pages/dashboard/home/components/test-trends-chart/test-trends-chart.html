@@ -3,14 +3,28 @@
     <h2 class="text-[#d1bfbf] text-xl font-semibold">Test Trends (Last 7 Days)</h2>
   </div>
 
-  <div class="w-full h-64">
-    <canvas
-      baseChart
-      [data]="lineChartData"
-      [labels]="lineChartLabels"
-      [type]="'line'"
-      [options]="lineChartOptions">
+  <div class="w-full h-64 flex items-center justify-center">
+    <!-- Loading State -->
+    <div *ngIf="loading" class="text-gray-400 text-center">
+      Loading...
+    </div>
+
+    <!-- Error State -->
+    <div *ngIf="!loading && error" class="text-red-500 text-center">
+      {{ error }}
+    </div>
+
+    <!-- No Data State -->
+    <div *ngIf="!loading && !error && noData" class="text-yellow-400 text-center">
+      No data available
+    </div>
+
+    <!-- Chart -->
+    <canvas *ngIf="!loading && !error && !noData"
+            baseChart
+            [data]="lineChartData"
+            [type]="'line'"
+            [options]="lineChartOptions">
     </canvas>
   </div>
 </div>
-

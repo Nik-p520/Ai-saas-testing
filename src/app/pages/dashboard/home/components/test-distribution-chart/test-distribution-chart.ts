@@ -1,6 +1,6 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, Input, ViewChild, AfterViewInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { NgChartsModule } from 'ng2-charts';
+import { NgChartsModule, BaseChartDirective } from 'ng2-charts';
 import { ChartData, ChartOptions } from 'chart.js';
 
 @Component({
@@ -8,20 +8,41 @@ import { ChartData, ChartOptions } from 'chart.js';
   standalone: true,
   imports: [CommonModule, NgChartsModule],
   templateUrl: './test-distribution-chart.html',
-  styleUrls: ['./test-distribution-chart.css']
+  styleUrls: ['./test-distribution-chart.css'],
 })
-export class TestDistributionChart implements OnInit {
+export class TestDistributionChart implements AfterViewInit {
+  @Input() loading: boolean = false;
+  @Input() error: string | null = null;
+  @Input() noData: boolean = false;
+  @ViewChild(BaseChartDirective) chart?: BaseChartDirective;
 
-  pieChartLabels: string[] = ['Passed', 'Failed', 'Running'];
+  private _distribution: { status: string; count: number }[] = [];
+  private chartReady = false;
+  private pendingUpdate = false; // queue updates if chart not ready
+
+  @Input() set distribution(value: { status: string; count: number }[]) {
+    this._distribution = value || [];
+    if (this.chartReady) {
+      this.updateChartData();
+    } else {
+      this.pendingUpdate = true; // mark pending update
+    }
+  }
+
+  get distribution() {
+    return this._distribution;
+  }
+
+  pieChartLabels = ['Passed', 'Failed', 'Processing'];
 
   pieChartData: ChartData<'pie', number[], string> = {
     labels: this.pieChartLabels,
     datasets: [
       {
-        data: [127, 23, 8],
-        backgroundColor: [], // will set in ngOnInit
+        data: [],
+        backgroundColor: [],    // will be set after init
         borderColor: ['#fff', '#fff', '#fff'],
-        borderWidth: 1
+        borderWidth: 1,
       },
     ],
   };
@@ -29,10 +50,7 @@ export class TestDistributionChart implements OnInit {
   pieChartOptions: ChartOptions<'pie'> = {
     responsive: true,
     plugins: {
-      legend: {
-        position: 'bottom',
-        labels: { font: { size: 12 } },
-      },
+      legend: { position: 'bottom', labels: { font: { size: 12 } } },
       tooltip: {
         backgroundColor: 'hsl(var(--card))',
         borderColor: 'hsl(var(--border))',
@@ -42,15 +60,37 @@ export class TestDistributionChart implements OnInit {
     },
   };
 
-  ngOnInit(): void {
-    // Read Tailwind CSS variables at runtime
+  ngAfterViewInit(): void {
+    this.chartReady = true;
+    this.applyColors();
+    if (this.pendingUpdate) {
+      this.updateChartData();
+      this.pendingUpdate = false;
+    }
+  }
+
+  /** Apply CSS color variables */
+  private applyColors() {
     const getCssVar = (name: string) =>
       getComputedStyle(document.documentElement).getPropertyValue(name).trim();
 
     this.pieChartData.datasets[0].backgroundColor = [
-      `hsl(${getCssVar('--success')})`, // Passed
-      `hsl(${getCssVar('--error')})`,   // Failed
-      `hsl(${getCssVar('--warning')})`, // Running
+      `hsl(${getCssVar('--success')})`, // Green
+      `hsl(${getCssVar('--error')})`,   // Red
+      `hsl(${getCssVar('--warning')})`, // Yellow
     ];
+  }
+
+  /** Update chart with current distribution data */
+  public updateChartData() {
+    if (!this.chart) return;
+
+    const counts = this.pieChartLabels.map(label => {
+      const match = this._distribution.find(d => d.status.toLowerCase() === label.toLowerCase());
+      return match?.count ?? 0;
+    });
+
+    this.pieChartData.datasets[0].data = counts;
+    this.chart.update();
   }
 }

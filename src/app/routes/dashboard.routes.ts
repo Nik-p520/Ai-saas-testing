@@ -28,6 +28,11 @@ export const DASHBOARD_ROUTES: Routes = [
           import('../pages/dashboard/settings/settings').then(m => m.Settings),
       },
       {
+        path: 'profile',
+        loadComponent: () =>
+          import('../pages/dashboard/profile/profile').then(m => m.ProfileComponent),
+      },
+      {
         path: 'result/:id', // <-- Add this for your result page
         loadComponent: () =>
           import('../pages/dashboard/result/result').then(m => m.ResultPageComponent),

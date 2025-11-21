@@ -1,27 +1,81 @@
-<div class="bg-[linear-gradient(180deg,#25181A,#1F1517,#1F1517)] text-[#d1bfbf] flex flex-col h-full border-r border-[#322625] font-inter">
-  <!-- Sidebar Header / Logo -->
-  <div class="px-4 py-6 flex items-center justify-center border-b border-[#322625]">
-    <span
-      *ngIf="open"
-      class="bg-gradient-to-r from-[#ff4c00] to-[#ff914d] bg-clip-text text-transparent text-2xl font-bold tracking-wide"
+<div
+  class="bg-[linear-gradient(180deg,#25181A,#1F1517,#1F1517)] text-[#d1bfbf] flex flex-col h-full border-r border-[#322625] font-inter transition-all duration-300 ease-in-out"
+  [class.w-64]="open"
+  [class.w-20]="!open"
+>
+  <!-- Sidebar Header / Logo + Toggle -->
+  <div class="px-4 py-6 flex items-center justify-between border-b border-[#322625] relative">
+    <!-- Logo + Text -->
+    <div
+      class="flex items-center gap-2 cursor-pointer select-none overflow-hidden transition-all duration-300"
+      (click)="!open && toggleSidebar()"
     >
-      🧪 Testee
-    </span>
-    <span *ngIf="!open" class="text-[#ff4c00] text-3xl font-bold">🧪</span>
+      <!-- Logo -->
+      
+
+      <!-- Logo Text -->
+      <span
+        class="bg-gradient-to-r from-[#ff4c00] to-[#ff914d] bg-clip-text text-transparent text-3xl font-bold tracking-wide whitespace-nowrap transition-all duration-300"
+        [class.opacity-100]="open"
+        [class.opacity-0]="!open"
+        [class.ml-2]="open"
+        [class.ml-0]="!open"
+      >
+        Testee
+      </span>
+    </div>
+
+    <!-- Toggle Button -->
+    <button
+      (click)="toggleSidebar()"
+      class="absolute right-2 text-[#ff4c00] hover:text-[#ff914d] transition-all duration-300 ease-in-out"
+      [style.opacity]="open ? 1 : 0"
+      [style.pointerEvents]="open ? 'auto' : 'none'"
+    >
+      <i-lucide [name]="'chevron-left'" class="h-5 w-5"></i-lucide>
+    </button>
   </div>
 
   <!-- Sidebar Menu -->
-  <nav class="flex-1 px-3 py-4 space-y-1 overflow-y-auto">
+  <nav class="flex-1 px-3 py-4 space-y-1 overflow-hidden">
     <a
       *ngFor="let item of items"
       [routerLink]="item.url"
       routerLinkActive="bg-[#332425] text-white shadow-lg"
       [routerLinkActiveOptions]="{ exact: true }"
-      class="flex items-center gap-3 px-4 py-3 rounded-lg text-base font-medium transition-all duration-200
+      class="flex items-center gap-3 px-4 py-3 rounded-lg text-base font-medium transition-all duration-300
              hover:bg-[#33242596] hover:text-white hover:shadow-md"
     >
-      <i-lucide [name]="item.icon" class="h-5 w-5 text-[#ff4c00]"></i-lucide>
-      <span>{{ item.title }}</span>
+      <i-lucide [name]="item.icon" class="h-5 w-5 text-[#ff4c00] shrink-0"></i-lucide>
+      <span
+        class="whitespace-nowrap transition-all duration-300 overflow-hidden"
+        [class.opacity-100]="open"
+        [class.opacity-0]="!open"
+        [class.ml-2]="open"
+        [class.ml-0]="!open"
+      >
+        {{ item.title }}
+      </span>
     </a>
   </nav>
+
+  <!-- Profile Section -->
+  <div
+    class="border-t border-[#322625] px-4 py-4 flex items-center gap-3 hover:bg-[#2b1d1e] transition-all duration-200 cursor-pointer"
+    [routerLink]="'/dashboard/profile'"
+  >
+    <div class="h-10 w-10 rounded-full bg-[#332425] flex items-center justify-center text-[#ff4c00] text-xl font-bold shrink-0">
+      <i-lucide name="user" class="h-5 w-5"></i-lucide>
+    </div>
+    <div
+      class="flex flex-col transition-all duration-300 overflow-hidden"
+      [class.opacity-100]="open"
+      [class.opacity-0]="!open"
+      [class.ml-2]="open"
+      [class.ml-0]="!open"
+    >
+      <span class="text-white font-medium whitespace-nowrap">Nikhil Panwar</span>
+      <span class="text-sm text-gray-400 whitespace-nowrap">View Profile</span>
+    </div>
+  </div>
 </div>

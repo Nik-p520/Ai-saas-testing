@@ -1,11 +1,16 @@
-<div class="flex h-screen ">
+<div class="flex h-screen bg-[linear-gradient(135deg,#201617,#161010,#171010)]">
   <!-- Sidebar -->
-  <app-sidebar class="w-64 fixed h-full"></app-sidebar>
+  <app-sidebar
+    class="h-full transition-all duration-300"
+    [class.w-64]="open"
+    [class.w-20]="!open"
+    (toggle)="open = !open"
+  ></app-sidebar>
 
   <!-- Main content -->
-  <div class="flex-1 ml-64 p-6 h-screen overflow-y-auto  bg-[linear-gradient(135deg,#201617,#161010,#171010)] text-foreground">
+  <div
+    class="flex-1 transition-all duration-300 p-6 h-screen overflow-y-auto text-white"
+  >
     <router-outlet></router-outlet>
   </div>
 </div>
-
-

@@ -1,26 +1,35 @@
-<div class="bg-gradient-to-br from-[#2b1d1d] via-[#231a1b] to-[#1b1313] border border-[#322625] rounded-2xl shadow-xl p-6">
-  <div class="flex items-center justify-between">
-    
-    <!-- Left: Title, Value, Trend -->
-    <div class="space-y-1">
-      <!-- Title -->
-      <p class="text-[#d1bfbf] ">{{ title }}</p>
-      
-      <!-- Value -->
-      <p class="text-[#d1bfbf] text-xl font-bold ">{{ value }}</p>
-      
-      <!-- Trend -->
-      <p *ngIf="trend" 
-         [ngClass]="trendUp ? 'text-success' : 'text-error'" 
-         class="text-xs">
+<div class="bg-gradient-to-br from-[#2b1d1d] via-[#231a1b] to-[#1b1313] border border-[#322625] rounded-2xl shadow-xl p-6 flex items-center justify-between">
+
+  <!-- Left: Content -->
+  <div class="space-y-1 w-full">
+
+    <!-- Loading -->
+    <div *ngIf="loading" class="text-gray-400 text-sm">
+      Loading...
+    </div>
+
+    <!-- Error -->
+    <div *ngIf="!loading && error" class="text-red-500 text-sm">
+      {{ error }}
+    </div>
+
+    <!-- Normal Content -->
+    <div *ngIf="!loading && !error">
+      <p class="text-[#d1bfbf]">{{ title }}</p>
+      <p class="text-[#d1bfbf] text-xl font-bold">{{ value }}</p>
+      <p *ngIf="trend" [ngClass]="trendUp ? 'text-success' : 'text-error'" class="text-xs">
         {{ trend }}
       </p>
     </div>
-
-    <!-- Right: Icon -->
-    <div class="p-3 rounded-lg bg-primary/10 flex items-center justify-center">
-      <lucide-icon [img]="icon" class="h-6 w-6 text-primary"></lucide-icon>
-    </div>
-
+    
   </div>
+
+  <!-- Right: Icon -->
+  <div class="p-3 rounded-lg bg-primary/10 flex items-center justify-center">
+    <!-- Only show icon if defined and not loading -->
+    <lucide-icon *ngIf="icon && !loading" [img]="icon" class="h-6 w-6 text-primary"></lucide-icon>
+    <!-- Optional placeholder icon during loading -->
+    <lucide-icon *ngIf="loading" [img]="defaultIcon" class="h-6 w-6 text-gray-400"></lucide-icon>
+  </div>
+
 </div>

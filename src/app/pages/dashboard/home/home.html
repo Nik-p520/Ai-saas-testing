@@ -1,5 +1,6 @@
 <!-- Dashboard Home Page -->
 <div class="min-h-full text-foreground space-y-6 p-6 animate-fade-in">
+
   <!-- Header -->
   <div>
     <h1 class="text-3xl font-bold bg-gradient-to-r from-[#ff4c00] to-[#ff914d] bg-clip-text text-transparent">
@@ -10,8 +11,27 @@
     </p>
   </div>
 
-  <!-- Stat Cards -->
-  <div class="grid gap-6 md:grid-cols-2 lg:grid-cols-4">
+  <!-- Dashboard Stat Cards Wrapper -->
+<div class="grid gap-6 md:grid-cols-2 lg:grid-cols-4">
+  
+  <!-- Loading Message -->
+  <!-- <div *ngIf="loadingStats && statCards.length === 0"
+       class="bg-gradient-to-br from-[#2b1d1d] via-[#231a1b] to-[#1b1313] border border-[#322625] rounded-2xl shadow-xl p-6 col-span-full text-gray-400 text-center">
+    Loading...
+  </div> -->
+
+  <!-- Error -->
+  <div *ngIf="!loadingStats && errorStats" class="bg-gradient-to-br from-[#2b1d1d] via-[#231a1b] to-[#1b1313] border border-[#322625] rounded-2xl shadow-xl p-6 col-span-full text-red-500 text-center">
+    {{ errorStats }}
+  </div>
+
+  <!-- Loading Skeleton -->
+  <ng-container *ngIf="loadingStats">
+    <app-stat-card *ngFor="let card of statCards" [loading]="true"></app-stat-card>
+  </ng-container>
+
+  <!-- Actual Cards -->
+  <ng-container *ngIf="!loadingStats && !errorStats">
     <app-stat-card
       *ngFor="let card of statCards"
       [title]="card.title"
@@ -19,17 +39,39 @@
       [icon]="card.icon"
       [trend]="card.trend"
       [trendUp]="card.trendUp"
+      [loading]="loadingStats"
+      [error]="errorStats"
     ></app-stat-card>
-  </div>
+  </ng-container>
+
+</div>
+
 
   <!-- Charts -->
   <div class="grid gap-6 md:grid-cols-2">
-    <app-test-trends-chart></app-test-trends-chart>
-    <app-test-distribution-chart></app-test-distribution-chart>
+
+    <app-test-trends-chart
+      [trends]="trends"
+      [loading]="loadingTrends"
+      [noData]="noDataTrends"
+      [error]="errorTrends">
+    </app-test-trends-chart>
+
+    <app-test-distribution-chart
+      [distribution]="distribution"
+      [loading]="loadingDistribution"
+      [noData]="noDataDistribution"
+      [error]="errorDistribution">
+    </app-test-distribution-chart>
+
   </div>
 
   <!-- Table -->
   <div class="grid gap-6">
-    <app-test-history-table [limit]="5" [showViewAllButton]="true"></app-test-history-table>
-  </div> 
+    <app-test-history-table
+      [limit]="5"
+      [showViewAllButton]="true">
+    </app-test-history-table>
+  </div>
+
 </div>

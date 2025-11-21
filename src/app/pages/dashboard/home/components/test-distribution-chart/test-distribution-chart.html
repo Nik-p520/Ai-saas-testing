@@ -7,13 +7,30 @@
     </h2>
   </div>
 
-  <!-- Chart Canvas -->
-  <div class="w-full h-64">
-    <canvas baseChart
-      [data]="pieChartData"
-      [labels]="pieChartLabels"
-      [type]="'pie'"
-      [options]="pieChartOptions">
+  <!-- Chart Canvas / Messages -->
+  <div class="w-full h-64 flex items-center justify-center">
+    <!-- Loading State -->
+    <div *ngIf="loading" class="text-gray-400 text-center">
+      Loading...
+    </div>
+
+    <!-- Error State -->
+    <div *ngIf="!loading && error" class="text-red-500 text-center">
+      {{ error }}
+    </div>
+
+    <!-- No Data State -->
+    <div *ngIf="!loading && !error && noData" class="text-yellow-400 text-center">
+      No data available
+    </div>
+
+    <!-- Chart -->
+    <canvas *ngIf="!loading && !error && !noData"
+            baseChart
+            [data]="pieChartData"
+            [labels]="pieChartLabels"
+            [type]="'pie'"
+            [options]="pieChartOptions">
     </canvas>
   </div>
 

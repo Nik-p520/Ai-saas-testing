@@ -1,7 +1,7 @@
-import { Component } from '@angular/core';
+import { Component, EventEmitter, Output } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterModule } from '@angular/router';
-import { LucideAngularModule, FlaskConical, History, Settings, BarChart3, LucideIconData } from 'lucide-angular';
+import { LucideAngularModule, FlaskConical, History, Settings, BarChart3, LucideIconData, } from 'lucide-angular';
 
 interface SidebarItem {
   title: string;
@@ -16,6 +16,7 @@ interface SidebarItem {
   templateUrl: './sidebar.html',
 })
 export class AppSidebarComponent {
+  @Output() toggle = new EventEmitter<void>();
   open = true;
 
   items: SidebarItem[] = [
@@ -24,4 +25,10 @@ export class AppSidebarComponent {
   { title: 'History', url: '/dashboard/history', icon: History },
   { title: 'Settings', url: '/dashboard/settings', icon: Settings },
   ];
+
+  toggleSidebar() {
+    this.open = !this.open;
+    this.toggle.emit();
+  }
+
 }

@@ -1,17 +1,22 @@
 import { Component, Input } from '@angular/core';
-import { LucideAngularModule, LucideIconData } from 'lucide-angular';
 import { CommonModule } from '@angular/common';
+import { LucideAngularModule, LucideIconData, FlaskConical } from 'lucide-angular';
+
 @Component({
   selector: 'app-stat-card',
   standalone: true,
-  imports: [CommonModule,LucideAngularModule],
+  imports: [CommonModule, LucideAngularModule],
   templateUrl: './stat-card.html',
 })
 export class StatCardComponent {
-  @Input() title!: string;
-  @Input() value!: string | number;
-  @Input() icon!: LucideIconData;
+  @Input() title: string = '';
+  @Input() value: string | number | null = null;
+  @Input() icon: LucideIconData = FlaskConical;
   @Input() trend?: string;
   @Input() trendUp?: boolean;
-}
+  @Input() error: string | null = null;
+  @Input() loading: boolean = false;
 
+  // Expose FlaskConical to the template
+  readonly defaultIcon: LucideIconData = FlaskConical;
+}
