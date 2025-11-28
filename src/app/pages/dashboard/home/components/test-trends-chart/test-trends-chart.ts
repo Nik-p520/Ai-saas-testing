@@ -70,16 +70,35 @@ export class TestTrendsChartComponent implements AfterViewInit {
   }
 
   /** Update chart data safely */
-  public updateChartData() {
-    if (!this.chart) return;
+public updateChartData() {
+  if (!this.chart) return;
 
-    const dayOrder = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
-    const counts = dayOrder.map(
-      day => this._trends.find(t => t.day === day)?.count || 0
-    );
+  // Generate last 7 days dynamically
+  const today = new Date();
+  const days: string[] = [];
 
-    this.lineChartData.datasets[0].data = counts;
-    this.chart.update();
-    this.pendingUpdate = false;
+  for (let i = 6; i >= 0; i--) {
+    const d = new Date();
+    d.setDate(today.getDate() - i);
+
+    days.push(d.toLocaleDateString('en-US', { weekday: 'short' })); 
   }
+
+  // Create map from backend data
+  const trendMap = new Map(
+    this._trends.map(t => [t.day.substring(0, 3), t.count])
+  );
+
+  // Build counts in correct rotated order
+  const counts = days.map(day => trendMap.get(day) ?? 0);
+
+  // Update chart labels + data
+  this.lineChartData.labels = days;
+  this.lineChartData.datasets[0].data = counts;
+
+  this.chart.update();
+  this.pendingUpdate = false;
+}
+
+
 }

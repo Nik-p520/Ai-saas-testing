@@ -15,6 +15,11 @@ export class DashboardService {
     return this.http.get(`${this.BASE_URL}/stats`);
   }
 
+  getComparisonData(): Observable<any> {
+    // The backend returns a Map<String, String>, which Angular treats as 'any' or a Record<string, string>
+    return this.http.get(`${this.BASE_URL}/comparison`);
+  }
+
   getTrends(): Observable<any> {
     return this.http.get(`${this.BASE_URL}/trends`);
   }

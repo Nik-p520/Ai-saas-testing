@@ -14,7 +14,7 @@ import { TestTrendsChartComponent } from './components/test-trends-chart/test-tr
 
 import { DashboardService } from '../../../core/services/Dahboard.service';
 import { DashboardWebSocketService } from '../../../core/services/dashboard-websocket.service';
-import { Subscription } from 'rxjs';
+import { Subscription, forkJoin } from 'rxjs'; 
 
 @Component({
   selector: 'app-dashboard',
@@ -36,6 +36,9 @@ export class DashboardComponent implements OnInit, OnDestroy {
   statCards: any[] = [];
   trends: { day: string; count: number }[] = [];
   distribution: { status: string; count: number }[] = [];
+
+  private currentStats: any = {};
+  private comparisonData: Record<string, string> = {}; 
 
   // Loading / error / no-data
   loadingStats = false;
@@ -65,9 +68,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
   ) {}
 
   ngOnInit(): void {
-    this.loadStats();
-    this.loadTrends();
-    this.loadDistribution();
+    this.loadInitialData();
     this.listenWebSocket();
   }
 
@@ -83,11 +84,20 @@ export class DashboardComponent implements OnInit, OnDestroy {
     // Stats live updates
     this.subs.push(
       this.ws.stats$.subscribe(stats => {
-        
         if (stats) {
-          this.updateStatsUI(stats);
+          this.currentStats = stats; 
+          this.renderStatsCards();    
           this.errorStats = null;
-          this.cdr.detectChanges();
+        }
+      })
+    );
+    
+    // Comparison live updates
+    this.subs.push(
+      this.ws.comparison$.subscribe((comps: Record<string, string>) => {
+        if (comps) {
+          this.comparisonData = comps; 
+          this.renderStatsCards();     
         }
       })
     );
@@ -122,37 +132,48 @@ export class DashboardComponent implements OnInit, OnDestroy {
   }
 
   // -----------------------
-  // REST API Load
+  // REST API Load (Initial Data)
   // -----------------------
 
-  private loadStats(): void {
-  this.loadingStats = true;
-  this.errorStats = null;
-  this.statCards = []; // Clear old cards while loading
+  private loadInitialData(): void {
+    this.loadingStats = true;
+    this.errorStats = null;
+    this.statCards = [];
 
-  this.dashboardService.getStats().subscribe({
-    next: (stats) => {
-      this.loadingStats = false;
+    this.subs.push(
+      forkJoin({
+        stats: this.dashboardService.getStats(),
+        comparison: this.dashboardService.getComparisonData() 
+      }).subscribe({
+        next: ({ stats, comparison }) => {
+          this.loadingStats = false;
+          
+          this.currentStats = stats;
+          this.comparisonData = comparison;
+          
+          if (!stats || Object.keys(stats).length === 0) {
+            this.errorStats = 'No stats available';
+          } else {
+            this.errorStats = null;
+            this.renderStatsCards(); 
+          }
 
-      if (!stats || Object.keys(stats).length === 0) {
-        this.errorStats = 'No stats available';
-      } else {
-        this.errorStats = null;
-        this.updateStatsUI(stats);
-      }
-
-      this.cdr.detectChanges();
-    },
-    error: (err) => {
-      console.error('Stats API Error:', err);
-      this.loadingStats = false;
-      this.errorStats = 'Failed to load stats';
-      this.statCards = [];
-      this.cdr.detectChanges();
-    },
-  });
-}
-
+          this.cdr.detectChanges();
+        },
+        error: (err) => {
+          console.error('Initial Load API Error:', err);
+          this.loadingStats = false;
+          this.errorStats = 'Failed to load initial dashboard stats.';
+          this.statCards = [];
+          this.cdr.detectChanges();
+        },
+      })
+    );
+    
+    this.loadTrends();
+    this.loadDistribution();
+  }
+  
   private loadTrends(): void {
     this.loadingTrends = true;
     this.errorTrends = null;
@@ -206,15 +227,79 @@ export class DashboardComponent implements OnInit, OnDestroy {
   }
 
   // -----------------------
-  // Stats UI Update
+  // Stats UI Update (Consolidated Renderer)
   // -----------------------
-  private updateStatsUI(stats: any): void {
+  private isTrendUp(trendValue: string | undefined): boolean {
+    // Correctly identifies positive trends (faster is positive for time)
+    return trendValue ? trendValue.startsWith('+') || trendValue.includes('faster') : false;
+}
+
+  // Inside DashboardComponent.ts -> renderStatsCards()
+
+private renderStatsCards(): void {
+    const stats = this.currentStats;
+    const comps = this.comparisonData; 
+
+    if (!stats || Object.keys(stats).length === 0) {
+        this.statCards = [];
+        return;
+    }
+    
+    // Clean the successRate trend string
+    const successTrendRaw = comps['successRate'] || 'N/A';
+    const successTrend = successTrendRaw.replace(/\s?%\s?/g, '%').trim(); 
+
+    // --- Defensive Cleanup for Success Rate Value ---
+    const rawSuccessRate = stats.successRate;
+    let successRateValue = '';
+    
+    if (rawSuccessRate !== null && rawSuccessRate !== undefined) {
+        // 1. Convert to string and strip any existing % or non-numeric/non-dot characters
+        const cleanRateString = String(rawSuccessRate).replace(/[^0-9.]/g, '');
+        
+        // 2. Convert back to number, format, and add the single desired '%'
+        successRateValue = Number(cleanRateString).toFixed(1) + '%';
+    } else {
+        successRateValue = 'N/A';
+    }
+    // --- End Defensive Cleanup ---
+
+
     const cards = [
-      { title: 'Total Tests', value: stats.totalTests, icon: FlaskConical, trend: '+12% from last week', trendUp: true },
-      { title: 'Avg Test Time', value: stats.averageTestTime?.toFixed(1) + 's', icon: Timer, trend: '-0.3s faster', trendUp: true },
-      { title: 'Success Rate', value: stats.successRate?.toFixed(1) + '%', icon: CheckCircle2, trend: '+2.1% improvement', trendUp: true },
-      { title: 'Active Tests', value: stats.activeTests, icon: TrendingUp, trend: 'Currently running', trendUp: true },
+        { 
+            title: 'Total Tests', 
+            // Fix 1: Removed redundant '%' from Total Tests value (it's a count, not a percentage).
+            value: String(stats.totalTests), 
+            icon: FlaskConical, 
+            trend: comps['totalTests'] || 'N/A', 
+            trendUp: this.isTrendUp(comps['totalTests']) 
+        },
+        { 
+            title: 'Avg Test Time', 
+            // Fix 2: Correct DTO field name (assuming averageTestTime is correct) and remove space.
+            value: stats.averageTime?.toFixed(1) + 's', 
+            icon: Timer, 
+            trend: comps['averageTime']?.replace(/\ss\sfaster/g, 's faster').trim() || 'N/A', 
+            trendUp: this.isTrendUp(comps['averageTime']) 
+        },
+        { 
+            title: 'Success Rate', 
+            // 🔥 FINAL FIX: Use the defensively cleaned and formatted value
+            value: successRateValue, 
+            icon: CheckCircle2, 
+            trend: successTrend, 
+            trendUp: this.isTrendUp(successTrend) 
+        },
+        { 
+            title: 'Active Tests', 
+            value: stats.activeTests, 
+            icon: TrendingUp, 
+            trend: 'Currently running', 
+            trendUp: true 
+        },
     ];
+    
     this.statCards = [...cards];
-  }
+    this.cdr.detectChanges(); 
+}
 }

@@ -14,6 +14,9 @@ export class DashboardWebSocketService {
   stats$ = new BehaviorSubject<any>(null);
   trends$ = new BehaviorSubject<any>(null);
   distribution$ = new BehaviorSubject<any>(null);
+  
+  // 🔥 FIX 1: New Observable for Comparison Data
+  comparison$ = new BehaviorSubject<any>(null); 
 
   constructor() {
     this.connect();
@@ -28,7 +31,7 @@ export class DashboardWebSocketService {
     this.stompClient.onConnect = () => {
       console.log('Connected to WebSocket');
 
-      // Subscribe to WebSocket topics
+      // Subscribe to existing WebSocket topics
       this.stompClient.subscribe('/topic/stats', (msg: IMessage) => {
         this.stats$.next(JSON.parse(msg.body));
       });
@@ -39,6 +42,12 @@ export class DashboardWebSocketService {
 
       this.stompClient.subscribe('/topic/distribution', (msg: IMessage) => {
         this.distribution$.next(JSON.parse(msg.body));
+      });
+      
+      // 🔥 FIX 2: New Subscription to the comparison topic
+      this.stompClient.subscribe('/topic/comparisons', (msg: IMessage) => {
+        // The comparison data is a Map<string, string>
+        this.comparison$.next(JSON.parse(msg.body)); 
       });
     };
 

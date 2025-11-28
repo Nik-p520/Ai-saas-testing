@@ -4,6 +4,17 @@
 @tailwind components;
 @tailwind utilities;
 
+.momo-signature-regular {
+  font-family: "Momo Signature", cursive;
+  font-weight: 200;
+  font-style: normal;
+}
+
+.momo {
+  font-family: "Momo Signature", cursive;
+  font-weight: 400;
+  font-style: normal;
+}
 
 @layer base {
   :root {
