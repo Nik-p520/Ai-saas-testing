@@ -1,72 +1,149 @@
-<div class="min-h-screen flex items-center justify-center p-4 bg-[linear-gradient(135deg,#201617,#161010,#171010)]">
-  <div class="w-full max-w-md space-y-8">
+<div class="min-h-screen w-full flex items-center justify-center p-4 bg-[linear-gradient(135deg,#201617,#161010,#171010)] font-sans text-foreground relative overflow-hidden">
+  
+  <!-- ✅ GLOW EFFECT (Background) -->
+  <div class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[800px] bg-[#ff4c00] opacity-[0.06] blur-[120px] rounded-full pointer-events-none z-0"></div>
+
+  <!-- Main Container (Grid Layout) -->
+  <div class="w-full max-w-6xl grid grid-cols-1 md:grid-cols-2 gap-12 items-center relative z-10 animate-fade-in-up">
     
-    <!-- Header Section -->
-    <div class="items-center space-y-2 text-center">
-      <h1 class="text-4xl font-bold bg-gradient-to-r from-[#ff4c00] to-[#ff914d] bg-clip-text text-transparent">
-        Testee
+    <!-- LEFT SIDE: Branding & Text -->
+    <div class="hidden md:flex flex-col justify-center space-y-8 pr-8">
+      
+      <!-- Logo -->
+      <div class="flex items-center gap-0">
+        <span class="text-6xl font-extrabold sonsie-regular text-[#ff914d]">T</span>
+        <span class="text-4xl font-extrabold bg-gradient-to-r from-[#ff914d] to-[#ff4c00] bg-clip-text playwrite-co text-transparent tracking-tight">
+          estee
+        </span>
+      </div>
+
+      <!-- Headline -->
+      <h1 class="text-5xl font-bold text-white leading-tight tracking-tight">
+        Join the Future of <br/>
+        <span class="bg-gradient-to-r from-[#ff4c00] to-[#ff914d] bg-clip-text text-transparent">Automated Testing.</span>
       </h1>
-      <p class="text-[#d1bfbf]">Create your account to get started</p>
+
+      <!-- Subheadline -->
+      <p class="text-[#a59494] text-lg max-w-md leading-relaxed font-light">
+        Create an account to start generating AI-powered test suites instantly.
+      </p>
+
     </div>
 
-    <!-- Form Card -->
-    <div class="bg-gradient-to-br from-[#2b1d1d] via-[#231a1b] to-[#1b1313] border border-[#322625] rounded-2xl shadow p-6">
-      <h2 class="text-2xl text-white font-semibold text-center mb-6">Sign up</h2>
-
-      <form [formGroup]="signupForm" (ngSubmit)="onSubmit()" class="space-y-4">
+    <!-- RIGHT SIDE: Signup Form (Glass Card) -->
+    <div class="w-full max-w-md mx-auto">
+      <div class="bg-[#1b1313]/60 backdrop-blur-xl border border-[#322625] rounded-3xl shadow-2xl p-8 md:p-10 hover:border-[#ff4c00]/20 transition-all duration-500 group">
         
-        <!-- Name -->
-        <div>
-          <label class="block text-sm text-[#d1bfbf] mb-1">Name</label>
-          <input type="text" formControlName="name" placeholder="Your Full Name"
-            class="w-full px-4 py-3 bg-transparent border border-[#322625] rounded-lg text-white focus:ring-2 focus:ring-[#ff4c00] outline-none" />
+        <!-- Mobile Header -->
+        <div class="md:hidden text-center mb-6">
+           <div class="flex items-center justify-center gap-0 mb-2">
+              <span class="text-4xl font-extrabold sonsie-regular text-[#ff914d]">T</span>
+              <span class="text-2xl font-extrabold bg-gradient-to-r from-[#ff914d] to-[#ff4c00] bg-clip-text playwrite-co text-transparent tracking-tight">estee</span>
+           </div>
+           <h2 class="text-2xl font-bold text-white">Create Account</h2>
+           <p class="text-[#a59494] text-sm mt-2">Start your journey with Testee</p>
         </div>
 
-        <!-- Email -->
-        <div>
-          <label class="block text-sm text-[#d1bfbf] mb-1">Email</label>
-          <input type="email" formControlName="email" placeholder="you@example.com"
-            class="w-full px-4 py-3 bg-transparent border border-[#322625] rounded-lg text-white focus:ring-2 focus:ring-[#ff4c00] outline-none" />
+        <form [formGroup]="signupForm" (ngSubmit)="onSubmit()" class="space-y-4">
+          
+          <!-- Name Input -->
+          <div class="space-y-1">
+            <label for="name" class="block text-xs font-semibold uppercase tracking-wider text-[#6e5a5b] ml-1">Full Name</label>
+            <input
+              id="name"
+              type="text"
+              formControlName="name"
+              placeholder="John Doe"
+              class="w-full px-4 py-3 bg-[#201617]/80 border border-[#322625] rounded-xl focus:ring-2 focus:ring-[#ff4c00]/50 focus:border-[#ff4c00] transition-all outline-none text-white placeholder-[#4a3b3c]"
+            />
+          </div>
+
+          <!-- Email Input -->
+          <div class="space-y-1">
+            <label for="email" class="block text-xs font-semibold uppercase tracking-wider text-[#6e5a5b] ml-1">Email Address</label>
+            <input
+              id="email"
+              type="email"
+              formControlName="email"
+              placeholder="you@example.com"
+              class="w-full px-4 py-3 bg-[#201617]/80 border border-[#322625] rounded-xl focus:ring-2 focus:ring-[#ff4c00]/50 focus:border-[#ff4c00] transition-all outline-none text-white placeholder-[#4a3b3c]"
+            />
+            <div
+              *ngIf="signupForm.get('email')?.touched && signupForm.get('email')?.invalid"
+              class="text-red-500 text-xs mt-1 ml-1 animate-pulse"
+            >
+              Valid email is required.
+            </div>
+          </div>
+
+          <!-- Password Input -->
+          <div class="space-y-1">
+            <label for="password" class="block text-xs font-semibold uppercase tracking-wider text-[#6e5a5b] ml-1">Password</label>
+            <input
+              id="password"
+              type="password"
+              formControlName="password"
+              placeholder="••••••••"
+              class="w-full px-4 py-3 bg-[#201617]/80 border border-[#322625] rounded-xl focus:ring-2 focus:ring-[#ff4c00]/50 focus:border-[#ff4c00] transition-all outline-none text-white placeholder-[#4a3b3c]"
+            />
+          </div>
+
+          <!-- Confirm Password Input -->
+          <div class="space-y-1">
+            <label for="confirmPassword" class="block text-xs font-semibold uppercase tracking-wider text-[#6e5a5b] ml-1">Confirm Password</label>
+            <input
+              id="confirmPassword"
+              type="password"
+              formControlName="confirmPassword"
+              placeholder="••••••••"
+              class="w-full px-4 py-3 bg-[#201617]/80 border border-[#322625] rounded-xl focus:ring-2 focus:ring-[#ff4c00]/50 focus:border-[#ff4c00] transition-all outline-none text-white placeholder-[#4a3b3c]"
+            />
+          </div>
+
+          <!-- Sign Up Button -->
+          <button
+            type="submit"
+            class="w-full bg-gradient-to-r from-[#ff4c00] to-[#d93d00] text-white py-3.5 rounded-xl font-bold shadow-lg shadow-[#ff4c00]/20 hover:shadow-[#ff4c00]/40 hover:-translate-y-0.5 active:translate-y-0 transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 mt-4"
+            [disabled]="isLoading"
+          >
+            <span *ngIf="!isLoading">Create Account</span>
+            <span *ngIf="isLoading">
+               <svg class="animate-spin h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>
+            </span>
+          </button>
+
+          <!-- Divider -->
+          <div class="relative flex py-2 items-center">
+              <div class="flex-grow border-t border-[#322625]"></div>
+              <span class="flex-shrink mx-4 text-[#6e5a5b] text-[10px] font-bold uppercase tracking-widest">Or join with</span>
+              <div class="flex-grow border-t border-[#322625]"></div>
+          </div>
+
+          <!-- Google Button -->
+          <button 
+            type="button" 
+            (click)="googleLogin()"
+            class="w-full bg-white hover:bg-gray-100 text-gray-900 py-3 rounded-xl font-semibold flex items-center justify-center gap-3 transition-all shadow-md hover:shadow-xl hover:-translate-y-0.5 active:translate-y-0 border-2 border-transparent hover:border-gray-200"
+          >
+            <img src="https://www.svgrepo.com/show/475656/google-color.svg" class="w-5 h-5" alt="google">
+            <span>Sign up with Google</span>
+          </button>
+
+        </form>
+
+        <div class="mt-6 text-center">
+          <p class="text-sm text-[#a59494]">
+            Already have an account?
+            <a
+              routerLink="/login"
+              class="text-[#ff4c00] hover:text-[#ff914d] font-bold hover:underline cursor-pointer transition-colors ml-1"
+            >
+              Log In
+            </a>
+          </p>
         </div>
-
-        <!-- Password (Wapas aa gaya!) -->
-        <div>
-          <label class="block text-sm text-[#d1bfbf] mb-1">Password</label>
-          <input type="password" formControlName="password" placeholder="••••••••"
-            class="w-full px-4 py-3 bg-transparent border border-[#322625] rounded-lg text-white focus:ring-2 focus:ring-[#ff4c00] outline-none" />
-        </div>
-
-        <!-- Confirm Password -->
-        <div>
-          <label class="block text-sm text-[#d1bfbf] mb-1">Confirm Password</label>
-          <input type="password" formControlName="confirmPassword" placeholder="••••••••"
-            class="w-full px-4 py-3 bg-transparent border border-[#322625] rounded-lg text-white focus:ring-2 focus:ring-[#ff4c00] outline-none" />
-        </div>
-
-        <!-- Signup Button -->
-        <button type="submit" [disabled]="isLoading"
-          class="w-full bg-gradient-to-r from-[#ff4c00] to-[#79411f] text-white py-2 rounded-lg hover:from-[#ff6633] transition shadow-md font-medium mt-4">
-          {{ isLoading ? 'Creating...' : 'Sign up' }}
-        </button>
-
-        <div class="flex items-center my-6">
-         <div class="flex-grow border-t border-gray-400"></div>
-         <span class="mx-4 text-gray-600 font-semibold">OR</span>
-         <div class="flex-grow border-t border-gray-400"></div>
-        </div>
-
-        <!-- Google Login Button -->
-        <button type="button" (click)="googleLogin()"
-          class="w-full bg-white text-black py-2 rounded-lg hover:bg-gray-200 transition font-medium mt-2 flex justify-center items-center gap-2">
-          <img src="https://www.svgrepo.com/show/475656/google-color.svg" class="w-5 h-5" alt="google">
-          Sign up with Google
-        </button>
-
-        <p class="text-sm text-center text-slate-500 mt-4">
-          Already have an account?
-          <a routerLink="/login" class="text-[#ff4c00] hover:text-[#ff914d] cursor-pointer">Log in</a>
-        </p>
-      </form>
+      </div>
     </div>
+
   </div>
 </div>

@@ -3,11 +3,16 @@
 
   <!-- Header -->
   <div>
-    <!-- ✅ Dynamic Name Here -->
-    <h1 class="bg-gradient-to-r from-[#ff4c00] to-[#ff914d] bg-clip-text text-transparent text-4xl font-bold tracking-wide whitespace-nowrap">
-      Hello, {{ userName }} 👋
+    <!-- Hello Name (Gradient) -->
+    <h1 class="text-5xl font-bold tracking-wide whitespace-nowrap">
+      <span class="bg-gradient-to-r from-[#ff914d] to-[#ff4c00] bg-clip-text text-transparent">
+        Hello, {{ userName }}
+      </span>
     </h1>
-    <p class="text-[#d1bfbf] mt-1 text-2xl">
+    
+    <!-- Welcome Text (Specific Opacity Color) -->
+    <!-- 'text-white/60' is roughly rgba(255,255,255,0.6) -->
+    <p class="text-[rgba(255,255,255,0.6)] mt-0 text-2xl font-medium">
       Welcome back to Testee!
     </p>
   </div>

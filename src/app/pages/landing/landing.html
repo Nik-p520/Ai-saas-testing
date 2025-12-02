@@ -1,159 +1,198 @@
-<div class="min-h-screen bg-[linear-gradient(135deg,#201617,#161010,#171010)]">
-  <!-- Navbar -->
-  <nav class="bg-[linear-gradient(135deg,#201617,#161010,#171010)]/80 backdrop-blur-md border-b border-[#322625] sticky top-0 z-50">
+<div class="min-h-screen bg-[linear-gradient(135deg,#201617,#161010,#171010)] font-sans text-foreground scroll-smooth relative overflow-hidden">
+  
+  <!-- ✅ GLOW EFFECT (Full Page Background) -->
+  <div class="absolute top-0 left-1/2 -translate-x-1/2 w-[800px] h-[800px] bg-[#ff4c00] opacity-[0.08] blur-[150px] rounded-full pointer-events-none z-0"></div>
+
+  <!-- ✅ TRANSPARENT NAVBAR -->
+  <nav class="fixed w-full z-50 top-0 start-0 border-b border-white/5 bg-transparent backdrop-blur-md transition-all duration-300">
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-      <div class="flex justify-between items-center h-16">
-        <div class="flex items-center space-x-2">
-          <span class="text-3xl font-bold bg-gradient-to-r from-[#ff4c00] to-[#ff914d] bg-clip-text text-transparent">🧪 Testee</span>
-        </div>
+      <div class="flex flex-wrap items-center justify-between h-16">
+        
+        <!-- Logo -->
+        <a href="#" class="flex items-center gap-0 group cursor-pointer">
+            <span class="text-4xl font-extrabold sonsie-regular text-[#ff914d]">T</span>
+            <span class="text-2xl font-extrabold bg-gradient-to-r from-[#ff914d] to-[#ff4c00] bg-clip-text playwrite-co text-transparent tracking-tight group-hover:opacity-80 transition-opacity">
+              estee
+            </span>
+        </a>
 
-        <div class="hidden md:flex items-center space-x-8">
-          <a href="#about" class="text-[#ff4c00] hover:text-[#f86103] transition-colors font-medium">About Us</a>
-          <a href="#help" class="text-[#ff4c00] hover:text-[#f86103] transition-colors font-medium">Help</a>
-          <a routerLink="/login" class="px-5 py-2 bg-[#ff4c00] text-white rounded-lg hover:bg-[#f86103] transition-all shadow-sm hover:shadow-md font-medium">Login</a>
-        </div>
-
-        <button class="md:hidden text-slate-700" (click)="toggleMenu()">
-          {{ isMenuOpen ? '✖' : '☰' }}
+        <!-- Mobile Menu Button -->
+        <button (click)="toggleMenu()" type="button" class="inline-flex items-center p-2 w-10 h-10 justify-center text-gray-400 rounded-lg md:hidden hover:bg-white/5 transition-colors">
+            <span class="sr-only">Open main menu</span>
+            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path></svg>
         </button>
-      </div>
 
-     <div *ngIf="isMenuOpen" class="md:hidden py-4 space-y-3 border-t border-slate-200">
-        <a href="#about" class="block text-slate-700 hover:text-blue-600 transition-colors font-medium">About Us</a>
-        <a href="#help" class="block text-slate-700 hover:text-blue-600 transition-colors font-medium">Help</a>
-        <!-- Use routerLink for Angular routing -->
-        <a routerLink="/login" class="block text-center px-5 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-all shadow-sm font-medium">
-        Login
-         </a>
+        <!-- Desktop Nav -->
+        <div class="hidden md:flex md:items-center md:space-x-8">
+          <a href="#about" class="text-[#d1bfbf] hover:text-[#ff4c00] font-medium transition-colors text-sm uppercase tracking-wide">About Us</a>
+          <a href="#help" class="text-[#d1bfbf] hover:text-[#ff4c00] font-medium transition-colors text-sm uppercase tracking-wide">Help</a>
+          <a routerLink="/login" class="px-6 py-2 bg-[#ff4c00] text-white rounded-full hover:bg-[#d93d00] transition-all shadow-lg shadow-[#ff4c00]/20 font-medium transform hover:-translate-y-0.5">
+            Login
+          </a>
+        </div>
+      </div>
+    </div>
+
+    <!-- Mobile Menu -->
+    <div *ngIf="isMenuOpen" class="md:hidden border-t border-white/5 bg-[#1b1313]/95 backdrop-blur-xl">
+      <div class="px-2 pt-2 pb-3 space-y-1">
+        <a href="#about" class="block px-3 py-2 text-[#d1bfbf] hover:text-[#ff4c00] hover:bg-white/5 rounded-md font-medium">About Us</a>
+        <a href="#help" class="block px-3 py-2 text-[#d1bfbf] hover:text-[#ff4c00] hover:bg-white/5 rounded-md font-medium">Help</a>
+        <a routerLink="/login" class="block px-3 py-2 text-[#ff4c00] font-bold hover:bg-white/5 rounded-md">Login -></a>
       </div>
     </div>
   </nav>
 
-  <!-- Main Section -->
-  <main>
-    <section class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-20 pb-16">
-      <div class="text-center mb-16">
-        <h1 class="text-5xl sm:text-6xl lg:text-7xl font-bold text-white mb-6 leading-tight">
-          Automate Website Testing
-          
-          <span class="bg-gradient-to-r from-[#ff4c00] to-[#ff914d] bg-clip-text text-transparent">Instantly</span>
-        </h1>
-        <p class="text-xl text-[#d1bfbf] max-w-2xl mx-auto leading-relaxed whitespace-nowrap">
-          “Just enter your app’s URL — our AI generates and executes Playwright tests automatically.”
+  <!-- Hero Section -->
+  <section class="relative pt-32 pb-20 px-4 sm:px-6 lg:px-8 flex flex-col items-center justify-center text-center z-10">
+    
+    <!-- Badge -->
+    <div class="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-[#322625]/50 border border-[#ff4c00]/20 text-[#ff914d] text-sm font-medium mb-8 animate-fade-in-up backdrop-blur-sm">
+      <span class="relative flex h-2 w-2">
+        <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-[#ff4c00] opacity-75"></span>
+        <span class="relative inline-flex rounded-full h-2 w-2 bg-[#ff4c00]"></span>
+      </span>
+      AI-Powered Automation
+    </div>
+
+    <!-- Main Headline (One Line on Desktop) -->
+    <h1 class="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-bold text-white tracking-tight mb-6 md:whitespace-nowrap relative z-10">
+      Automate Website Testing 
+      <span class="bg-gradient-to-r from-[#ff914d] to-[#ff4c00] bg-clip-text text-transparent">Instantly</span>
+    </h1>
+
+    <!-- Subheadline -->
+    <p class="text-lg md:text-xl text-[#a59494] max-w-2xl mx-auto leading-relaxed mb-12 font-light">
+      Enter your URL and let our AI Agent generate, execute, and analyze Playwright tests automatically. 
+      <span class="text-[#d1bfbf] font-medium">No coding required.</span>
+    </p>
+
+    <!-- Input Form -->
+    <div class="w-full max-w-2xl bg-[#1b1313]/80 backdrop-blur-sm border border-[#322625] rounded-2xl shadow-2xl p-2 sm:p-3 flex flex-col sm:flex-row gap-3 relative z-10 transition-all hover:border-[#ff4c00]/40 focus-within:border-[#ff4c00]/60 focus-within:ring-4 focus-within:ring-[#ff4c00]/10">
+      
+      <div class="relative flex-grow">
+        <div class="absolute inset-y-0 left-0 flex items-center pl-4 pointer-events-none">
+          <svg class="w-5 h-5 text-[#6e5a5b]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 12a9 9 0 01-9 9m9-9a9 9 0 00-9-9m9 9H3m9 9a9 9 0 01-9-9m9 9c1.657 0 3-4.03 3-9s-1.343-9-3-9m0 18c-1.657 0-3-4.03-3-9s1.343-9 3-9m-9 9a9 9 0 019-9"/></svg>
+        </div>
+        <input 
+          type="url" 
+          [(ngModel)]="websiteUrl"
+          class="block w-full py-3 pl-12 text-white bg-transparent border-none focus:ring-0 placeholder-[#6e5a5b] text-lg outline-none" 
+          placeholder="https://your-website.com" 
+          required
+        >
+      </div>
+      
+      <button 
+        (click)="handleTest()" 
+        [disabled]="isTestingInProgress"
+        class="px-8 py-3 bg-gradient-to-r from-[#ff4c00] to-[#d93d00] text-white font-bold rounded-xl shadow-lg hover:shadow-[#ff4c00]/30 transition-all hover:-translate-y-0.5 disabled:opacity-50 disabled:cursor-not-allowed whitespace-nowrap flex items-center justify-center gap-2"
+      >
+        <span *ngIf="!isTestingInProgress">Start Test</span>
+        <span *ngIf="isTestingInProgress">
+           <svg class="animate-spin h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>
+        </span>
+      </button>
+    </div>
+
+    <div class="mt-6 text-sm text-[#6e5a5b]">
+      Trying to test a protected app? 
+      <button class="text-[#ff4c00] hover:text-[#ff914d] hover:underline ml-1 font-medium transition-colors">Add Credentials</button>
+    </div>
+
+  </section>
+
+  <!-- Features Grid -->
+  <section class="relative py-16 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto border-t border-[#322625] z-10">
+    <div class="grid md:grid-cols-3 gap-6">
+      
+      <!-- Feature 1 -->
+      <div class="group p-6 rounded-2xl bg-[#1b1313]/50 backdrop-blur-sm border border-[#322625] hover:border-[#ff4c00]/30 hover:bg-[#1b1313]/80 transition-all duration-300 hover:-translate-y-1">
+        <div class="w-12 h-12 bg-[#ff4c00]/10 rounded-xl flex items-center justify-center mb-4 group-hover:bg-[#ff4c00]/20 transition-colors text-2xl">
+          🤖
+        </div>
+        <h3 class="text-lg font-bold text-white mb-2">AI Test Generation</h3>
+        <p class="text-[#a59494] text-sm leading-relaxed">
+          Our LLM engine navigates your UI like a human and writes resilient Playwright scripts automatically.
         </p>
       </div>
 
-      <!-- Form -->
-      <div class="max-w-3xl mx-auto">
-        <div class="bg-gradient-to-br from-[#2b1d1d] via-[#231a1b] to-[#1b1313] border border-[#322625] rounded-2xl shadow-xl p-6">
-          <div class="space-y-6">
-            <div>
-              <label for="website-url" class="block text-sm font-semibold text-[#d1bfbf] mb-2">Website URL *</label>
-              <input
-                id="website-url"
-                type="url"
-                placeholder="https://example.com"
-                [(ngModel)]="websiteUrl"
-                class="w-full px-4 py-3 bg-transparent border border-[#322625] rounded-lg focus:ring-2 focus:ring-[#ff4c00] transition-all outline-none text-white placeholder-[#a59494]"
-              />
-            </div>
+      <!-- Feature 2 -->
+      <div class="group p-6 rounded-2xl bg-[#1b1313]/50 backdrop-blur-sm border border-[#322625] hover:border-[#ff4c00]/30 hover:bg-[#1b1313]/80 transition-all duration-300 hover:-translate-y-1">
+        <div class="w-12 h-12 bg-[#ff4c00]/10 rounded-xl flex items-center justify-center mb-4 group-hover:bg-[#ff4c00]/20 transition-colors text-2xl">
+          📊
+        </div>
+        <h3 class="text-lg font-bold text-white mb-2">Smart Analytics</h3>
+        <p class="text-[#a59494] text-sm leading-relaxed">
+          Visual dashboards, pass/fail trends, and detailed execution logs to track health over time.
+        </p>
+      </div>
 
-            <div class="grid md:grid-cols-2 gap-4">
-              <div>
-                <label for="username" class="block text-sm font-semibold text-[#d1bfbf] mb-2">Username (Optional)</label>
-                <input
-                  id="username"
-                  type="text"
-                  placeholder="Username"
-                  [(ngModel)]="username"
-                  class="w-full px-4 py-3 bg-transparent border border-[#322625] rounded-lg focus:ring-2 focus:ring-[#ff4c00]  transition-all outline-none text-white placeholder-[#a59494]"
-                />
-              </div>
-              <div>
-                <label for="password" class="block text-sm font-semibold text-[#d1bfbf] mb-2">Password (Optional)</label>
-                <input
-                  id="password"
-                  type="password"
-                  placeholder="Password"
-                  [(ngModel)]="password"
-                  class="w-full px-4 py-3 bg-transparent border border-[#322625] rounded-lg focus:ring-2 focus:ring-[#ff4c00] transition-all outline-none text-white placeholder-[#a59494]"
-                />
-              </div>
-            </div>
+      <!-- Feature 3 -->
+      <div class="group p-6 rounded-2xl bg-[#1b1313]/50 backdrop-blur-sm border border-[#322625] hover:border-[#ff4c00]/30 hover:bg-[#1b1313]/80 transition-all duration-300 hover:-translate-y-1">
+        <div class="w-12 h-12 bg-[#ff4c00]/10 rounded-xl flex items-center justify-center mb-4 group-hover:bg-[#ff4c00]/20 transition-colors text-2xl">
+          ⚡
+        </div>
+        <h3 class="text-lg font-bold text-white mb-2">Zero Configuration</h3>
+        <p class="text-[#a59494] text-sm leading-relaxed">
+          No setup required. Just paste a URL and start testing immediately. We handle the infrastructure.
+        </p>
+      </div>
 
-            <button
-              (click)="handleTest()"
-              [disabled]="isTestingInProgress"
-              class="w-full px-8 py-4 bg-gradient-to-r from-[#ff4c00] to-[#79411f] text-white rounded-lg hover:from-[#ff6633] hover:to-[#57301d] transition-all shadow-lg font-semibold text-lg disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center space-x-2"
-            >
-                 <ng-container *ngIf="isTestingInProgress; else startTest">
-                   <span>Testing...</span>
-                 </ng-container>
+    </div>
+  </section>
 
-                <ng-template #startTest>
-                  <span>Start Test</span>
-                </ng-template>
-            </button>
-          </div>
+  <!-- About & Help Section (WAPAS AA GAYA!) -->
+  <section class="relative py-20 px-4 max-w-7xl mx-auto border-t border-[#322625] z-10">
+    <div class="grid md:grid-cols-2 gap-12 items-start">
+      
+      <!-- About Us -->
+      <div id="about" class="p-8 rounded-3xl bg-gradient-to-br from-[#201617]/80 to-[#171010]/80 backdrop-blur-sm border border-[#322625] hover:border-[#ff4c00]/20 transition-colors">
+        <h2 class="text-3xl font-bold text-white mb-4">About <span class="text-[#ff4c00]">Testee</span></h2>
+        <p class="text-[#d1bfbf] leading-relaxed mb-6">
+          We are simplifying QA for modern dev teams. Traditional testing is slow and brittle. 
+          Testee uses AI to understand your UI and adapt to changes, freeing you from maintaining broken scripts.
+        </p>
+        <div class="flex items-center gap-4 text-sm font-medium text-[#ff4c00]">
+          <span class="flex items-center gap-2">🚀 Built for speed</span>
+          <span class="flex items-center gap-2">🔒 Enterprise Secure</span>
         </div>
       </div>
 
-      <!-- Features -->
-      <div class="grid md:grid-cols-3 gap-8 mt-20 max-w-6xl mx-auto">
-        <div class="bg-gradient-to-br from-[#2b1d1d] via-[#231a1b] to-[#1b1313] border border-[#322625] rounded-xl p-8 shadow-md  hover:shadow-lg transition-shadow">
-          <div class="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center mb-4">🤖</div>
-          <h3 class="text-xl font-bold text-[#ff4c00] mb-3">AI Test Generation</h3>
-          <p class="text-[#d1bfbf]  leading-relaxed">
-            Uses Langchain + OpenAI to auto-create Playwright test scripts.
-          </p>
-        </div>
-
-        <div class="bg-gradient-to-br from-[#2b1d1d] via-[#231a1b] to-[#1b1313] border border-[#322625] rounded-xl p-8 shadow-md  hover:shadow-lg transition-shadow">
-          <div class="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center mb-4">📊</div>
-          <h3 class="text-xl font-bold text-[#ff4c00] mb-3">Smart Dashboard</h3>
-          <p class="text-[#d1bfbf] leading-relaxed">
-            Displays results, screenshots, logs, and test history.
-          </p>
-        </div>
-
-        <div class="bg-gradient-to-br from-[#2b1d1d] via-[#231a1b] to-[#1b1313] border border-[#322625] rounded-xl p-8 shadow-md  hover:shadow-lg transition-shadow">
-          <div class="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center mb-4">🔐</div>
-          <h3 class="text-xl font-bold text-[#ff4c00] mb-3">Secure Authentication</h3>
-          <p class="text-[#d1bfbf] leading-relaxed">
-            Uses JWT + OAuth for safe login and session management.
-          </p>
+      <!-- Help / Contact -->
+      <div id="help" class="p-8 rounded-3xl bg-gradient-to-br from-[#201617]/80 to-[#171010]/80 backdrop-blur-sm border border-[#322625] hover:border-[#ff4c00]/20 transition-colors">
+        <h2 class="text-3xl font-bold text-white mb-4">Need Help?</h2>
+        <p class="text-[#d1bfbf] leading-relaxed mb-8">
+          Stuck somewhere? Our documentation is extensive, and our support team is ready to help you debug any test case.
+        </p>
+        <div class="flex gap-4">
+          <a href="mailto:support@testee.ai" class="px-6 py-2.5 bg-[#ff4c00] text-white rounded-lg hover:bg-[#d93d00] transition-all font-medium shadow-lg shadow-[#ff4c00]/10">
+            Contact Support
+          </a>
+          <button class="px-6 py-2.5 border border-[#322625] text-[#d1bfbf] rounded-lg hover:text-white hover:bg-[#322625] transition-all">
+            Read Docs
+          </button>
         </div>
       </div>
-    </section>
 
-    <!-- About -->
-    <section id="about" class="py-20 text-center">
-      <h2 class="text-4xl font-bold bg-gradient-to-r from-[#ff4c00] to-[#ff914d] bg-clip-text text-transparent mb-6">About Us</h2>
-      <p class="text-lg text-[#d1bfbf] leading-relaxed max-w-3xl mx-auto">
-        We’re building the future of automated web testing.
-        Our mission is to simplify QA by letting AI handle repetitive testing tasks — so developers and teams can focus on innovation instead of maintenance.
-        The platform combines Langchain, OpenAI, Playwright MCP, and Spring Boot to deliver end-to-end automation that’s smart, reliable, and developer-friendly.
-      </p>
-    </section>
-
-    <!-- Help -->
-    <section id="help" class="py-20 text-center">
-      <h2 class="text-4xl font-bold bg-gradient-to-r from-[#ff4c00] to-[#ff914d] bg-clip-text text-transparent mb-6">Need Help?</h2>
-      <p class="text-lg text-[#d1bfbf] leading-relaxed mb-8">
-        Our support team is here to assist you 24/7.
-      </p>
-      <a href="mailto:support@testee.ai" class="inline-block px-8 py-3 bg-[#ff4c00] text-white rounded-lg hover:bg-[#f86103] transition-all shadow-sm hover:shadow-md font-medium">
-        Contact Support
-      </a>
-    </section>
-  </main>
+    </div>
+  </section>
 
   <!-- Footer -->
-  <footer class= " text-slate-300 py-12 border-t border-[#322625] text-center">
-    <div class="flex items-center justify-center space-x-2 mb-4">
-      🧪 <span class="text-xl font-bold text-[#ff4c00]">Testee</span>
+  <footer class="relative border-t border-[#322625] bg-[#100a0b] py-8 z-10">
+    <div class="max-w-7xl mx-auto px-4 flex flex-col md:flex-row items-center justify-between gap-4">
+      <div class="flex items-center gap-0">
+            <span class="text-4xl font-extrabold sonsie-regular text-[#ff914d]">T</span>
+            <span class="text-2xl font-extrabold bg-gradient-to-r from-[#ff914d] to-[#ff4c00] bg-clip-text playwrite-co text-transparent tracking-tight group-hover:opacity-80 transition-opacity">
+              estee
+            </span>
+      </div>
+      <p class="text-[#6e5a5b] text-sm">© 2025 Testee Inc. All rights reserved.</p>
+      <div class="flex gap-6 text-sm">
+        <a href="#" class="text-[#6e5a5b] hover:text-[#ff4c00] transition-colors">Privacy</a>
+        <a href="#" class="text-[#6e5a5b] hover:text-[#ff4c00] transition-colors">Terms</a>
+      </div>
     </div>
-    <p class="text-sm">© 2025 Testee. All rights reserved. AI-powered testing made simple.</p>
   </footer>
-</div>
 
+</div>
