@@ -1,5 +1,6 @@
-<div class="flex flex-col p-6 animate-fade-in">
-  <div>
+<div class="flex flex-col h-[calc(100vh-3rem)] overflow-hidden p-6 animate-fade-in text-[#d1bfbf] font-inter">
+  
+  <div class="flex-none">
     <h1 class="text-3xl font-bold bg-gradient-to-r from-[#ff4c00] to-[#ff914d] bg-clip-text text-transparent">
       Test History
     </h1>
@@ -8,39 +9,20 @@
     </p>
   </div>
 
-  <!-- Search input -->
-  <div class="relative max-w-md mt-4">
-      <svg
-    class="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-white"
-    fill="none"
-    stroke="currentColor"
-    stroke-width="2"
-    viewBox="0 0 24 24"
-    xmlns="http://www.w3.org/2000/svg"
-  >
-    <path
-      stroke-linecap="round"
-      stroke-linejoin="round"
-      d="M21 21l-4.35-4.35m0 0A7.5 7.5 0 1112 4.5a7.5 7.5 0 014.65 12.15z"
-    ></path>
-  </svg>
-
-    <input
-      type="search"
-      placeholder="Search by URL..."
-      [(ngModel)]="searchQuery"
-      class="w-full pl-10 px-4 py-2 rounded-lg 
-         bg-[#231a1b]
-         text-[#f5e6d3] placeholder-[#bfa9a2]
-         border border-[#322625]
-         focus:ring-2 focus:ring-[#ff4c00] focus:border-transparent
-         outline-none transition-all duration-300
-         font-[Poppins] tracking-wide shadow-inner"
+  <div class="flex-none relative max-w-md mt-4">
+      <svg class="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-white pointer-events-none" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+        <path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-4.35-4.35m0 0A7.5 7.5 0 1112 4.5a7.5 7.5 0 014.65 12.15z"></path>
+      </svg>
+    <input type="search" placeholder="Search by URL..." [(ngModel)]="searchQuery"
+      class="w-full pl-10 px-4 py-2 rounded-lg bg-[#231a1b] text-[#f5e6d3] placeholder-[#bfa9a2] border border-[#322625] focus:ring-2 focus:ring-[#ff4c00] focus:border-transparent outline-none transition-all duration-300 font-[Poppins] tracking-wide shadow-inner"
     />
   </div>
 
-  <!-- Add spacing here -->
-  <div class="mt-4">
-    <app-test-history-table [filter]="searchQuery"></app-test-history-table>
+  <div class="flex-1 min-h-0 mt-4">
+    <app-test-history-table 
+        [filter]="searchQuery" 
+        [fullHeight]="true" 
+        class="h-full block" 
+    ></app-test-history-table>
   </div>
 </div>

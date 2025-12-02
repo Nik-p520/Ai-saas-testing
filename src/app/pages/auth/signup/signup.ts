@@ -1,7 +1,8 @@
 import { Component } from '@angular/core';
-import { FormBuilder,ReactiveFormsModule,FormGroup, Validators } from '@angular/forms';
+import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
+import { AuthService } from '../../../core/services/auth.service';
+import { Router, RouterModule } from '@angular/router';
 import { CommonModule } from '@angular/common';
-import { RouterModule, Router } from '@angular/router';
 
 @Component({
   selector: 'app-signup',
@@ -13,8 +14,11 @@ export class SignupComponent {
   isLoading = false;
   signupForm: FormGroup;
 
-  constructor(private fb: FormBuilder, private router: Router) {
-    
+  constructor(
+    private fb: FormBuilder,
+    private authService: AuthService,
+    private router: Router
+  ) {
     this.signupForm = this.fb.group({
       email: ['', [Validators.required, Validators.email]],
       name: ['', [Validators.required]],
@@ -22,34 +26,40 @@ export class SignupComponent {
       confirmPassword: ['', [Validators.required]]
     });
   }
-  
 
-  async onSubmit() {
-    
-    this.signupForm.markAllAsTouched(); 
-
+  onSubmit() {
     if (this.signupForm.invalid) {
-    return; // errors will now be visible
-  }
-  
-    const { password, confirmPassword } = this.signupForm.value;
-    if (password !== confirmPassword) {
-      alert('Passwords do not match');
+      this.signupForm.markAllAsTouched();
       return;
     }
 
-    if (password!.length < 6) {
-      alert('Password must be at least 6 characters');
+    const { email, password, confirmPassword, name } = this.signupForm.value;
+
+    if (password !== confirmPassword) {
+      alert("Passwords match nahi ho rahe bhai!");
       return;
     }
 
     this.isLoading = true;
 
-    setTimeout(() => {
-      alert('✅ Account created! Welcome to Testee');
-      this.router.navigate(['/']);
-      this.isLoading = false;
-    }, 1000);
+    // Firebase Signup Call
+    this.authService.signup(email, password, name).subscribe({
+      next: () => {
+        this.isLoading = false;
+        alert("Account ban gaya! Dashboard pe ja raha hoon.");
+        this.router.navigate(['/login']);
+      },
+      error: (err) => {
+        this.isLoading = false;
+        alert("Gadbad ho gayi: " + err.message);
+      }
+    });
+  }
+  
+  googleLogin() {
+    this.authService.loginWithGoogle().subscribe({
+      next: () => this.router.navigate(['/dashboard']),
+      error: (e) => alert(e.message)
+    });
   }
 }
-

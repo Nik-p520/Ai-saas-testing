@@ -14,6 +14,8 @@ export class StatCardComponent {
   @Input() icon: LucideIconData = FlaskConical;
   @Input() trend?: string;
   @Input() trendUp?: boolean;
+  // 🔥 NEW INPUT: Property to control red color for negative trends
+  @Input() trendDown?: boolean; 
   @Input() error: string | null = null;
   @Input() loading: boolean = false;
 

@@ -28,3 +28,4 @@ export class DashboardService {
     return this.http.get(`${this.BASE_URL}/distribution`);
   }
 }
+

@@ -10,10 +10,51 @@
   font-style: normal;
 }
 
-.momo {
-  font-family: "Momo Signature", cursive;
+.plaster-regular {
+  font-family: "Plaster", system-ui;
+  font-weight: 300;
+  font-style: normal;
+}
+
+.oi-regular {
+  font-family: "Oi", serif;
   font-weight: 400;
   font-style: normal;
+}
+
+.unifrakturcook-bold {
+  font-family: "UnifrakturCook", cursive;
+  font-weight: 700;
+  font-style: normal;
+}
+
+.playwrite-co {
+  font-family: "Playwrite CO", cursive;
+  font-optical-sizing: auto;
+  font-weight: 400;
+  font-style: normal;
+}
+
+.badeen-regular {
+  font-family: "Badeen Display", system-ui;
+  font-weight: 400;
+  font-style: normal;
+}
+
+.sonsie-regular {
+  font-family: "Sonsie One", system-ui;
+  font-weight: 400;
+  font-style: normal;
+}
+
+.honk-3d {
+  font-family: "Honk", system-ui;
+  font-optical-sizing: auto;
+  font-weight: 400;
+  font-style: normal;
+  font-variation-settings:
+    "MORF" 15,
+    "SHLN" 50;
 }
 
 @layer base {

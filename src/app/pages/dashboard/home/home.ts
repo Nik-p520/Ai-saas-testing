@@ -14,6 +14,7 @@ import { TestTrendsChartComponent } from './components/test-trends-chart/test-tr
 
 import { DashboardService } from '../../../core/services/Dahboard.service';
 import { DashboardWebSocketService } from '../../../core/services/dashboard-websocket.service';
+import { AuthService } from '../../../core/services/auth.service'; // ✅ Added AuthService
 import { Subscription, forkJoin } from 'rxjs'; 
 
 @Component({
@@ -33,6 +34,8 @@ export class DashboardComponent implements OnInit, OnDestroy {
   // -----------------------
   // UI State
   // -----------------------
+  userName: string = 'User'; // ✅ Added userName property
+  
   statCards: any[] = [];
   trends: { day: string; count: number }[] = [];
   distribution: { status: string; count: number }[] = [];
@@ -64,10 +67,19 @@ export class DashboardComponent implements OnInit, OnDestroy {
   constructor(
     private dashboardService: DashboardService,
     private ws: DashboardWebSocketService,
+    private authService: AuthService, // ✅ Injected AuthService
     private cdr: ChangeDetectorRef
   ) {}
 
   ngOnInit(): void {
+    // ✅ Fetch User Name
+    this.authService.user$.subscribe(user => {
+      if (user) {
+        const fullName = user.displayName || user.email?.split('@')[0] || 'User';
+        this.userName = fullName.split(' ')[0]; // Sirf First Name (e.g. 'Nikhil')
+      }
+    });
+
     this.loadInitialData();
     this.listenWebSocket();
   }
@@ -80,8 +92,6 @@ export class DashboardComponent implements OnInit, OnDestroy {
   // WebSocket Live Updates
   // -----------------------
   private listenWebSocket(): void {
-
-    // Stats live updates
     this.subs.push(
       this.ws.stats$.subscribe(stats => {
         if (stats) {
@@ -92,7 +102,6 @@ export class DashboardComponent implements OnInit, OnDestroy {
       })
     );
     
-    // Comparison live updates
     this.subs.push(
       this.ws.comparison$.subscribe((comps: Record<string, string>) => {
         if (comps) {
@@ -102,10 +111,8 @@ export class DashboardComponent implements OnInit, OnDestroy {
       })
     );
 
-    // Trends live updates
     this.subs.push(
       this.ws.trends$.subscribe(data => {
-        
         if (data && data.length > 0) {
           this.trends = [...data];
           if (this.trendsChart) this.trendsChart.trends = [...data];
@@ -116,10 +123,8 @@ export class DashboardComponent implements OnInit, OnDestroy {
       })
     );
 
-    // Distribution live updates
     this.subs.push(
       this.ws.distribution$.subscribe(data => {
-        
         if (data && data.length > 0) {
           this.distribution = [...data];
           if (this.distributionChart) this.distributionChart.distribution = [...data];
@@ -134,7 +139,6 @@ export class DashboardComponent implements OnInit, OnDestroy {
   // -----------------------
   // REST API Load (Initial Data)
   // -----------------------
-
   private loadInitialData(): void {
     this.loadingStats = true;
     this.errorStats = null;
@@ -227,16 +231,21 @@ export class DashboardComponent implements OnInit, OnDestroy {
   }
 
   // -----------------------
+  // Stats UI Update (Trend Helpers)
+  // -----------------------
+
+  private isTrendUp(trendValue: string | undefined): boolean {
+      return trendValue ? trendValue.startsWith('+') || trendValue.includes('faster') : false;
+  }
+
+  private isTrendDown(trendValue: string | undefined): boolean {
+      return trendValue ? trendValue.startsWith('-') || trendValue.includes('slower') || trendValue.includes('worse') : false;
+  }
+
+  // -----------------------
   // Stats UI Update (Consolidated Renderer)
   // -----------------------
-  private isTrendUp(trendValue: string | undefined): boolean {
-    // Correctly identifies positive trends (faster is positive for time)
-    return trendValue ? trendValue.startsWith('+') || trendValue.includes('faster') : false;
-}
-
-  // Inside DashboardComponent.ts -> renderStatsCards()
-
-private renderStatsCards(): void {
+  private renderStatsCards(): void {
     const stats = this.currentStats;
     const comps = this.comparisonData; 
 
@@ -245,61 +254,56 @@ private renderStatsCards(): void {
         return;
     }
     
-    // Clean the successRate trend string
-    const successTrendRaw = comps['successRate'] || 'N/A';
-    const successTrend = successTrendRaw.replace(/\s?%\s?/g, '%').trim(); 
-
-    // --- Defensive Cleanup for Success Rate Value ---
+    const successTrend = comps['successRate'] || 'N/A';
+    const totalTestsTrend = comps['totalTests'] || 'N/A';
+    const avgTimeTrend = comps['averageTime'] || 'N/A';
+    
     const rawSuccessRate = stats.successRate;
     let successRateValue = '';
     
     if (rawSuccessRate !== null && rawSuccessRate !== undefined) {
-        // 1. Convert to string and strip any existing % or non-numeric/non-dot characters
         const cleanRateString = String(rawSuccessRate).replace(/[^0-9.]/g, '');
-        
-        // 2. Convert back to number, format, and add the single desired '%'
         successRateValue = Number(cleanRateString).toFixed(1) + '%';
     } else {
         successRateValue = 'N/A';
     }
-    // --- End Defensive Cleanup ---
-
 
     const cards = [
         { 
             title: 'Total Tests', 
-            // Fix 1: Removed redundant '%' from Total Tests value (it's a count, not a percentage).
             value: String(stats.totalTests), 
             icon: FlaskConical, 
-            trend: comps['totalTests'] || 'N/A', 
-            trendUp: this.isTrendUp(comps['totalTests']) 
+            trend: totalTestsTrend, 
+            trendUp: this.isTrendUp(totalTestsTrend),
+            trendDown: this.isTrendDown(totalTestsTrend)
         },
         { 
             title: 'Avg Test Time', 
-            // Fix 2: Correct DTO field name (assuming averageTestTime is correct) and remove space.
             value: stats.averageTime?.toFixed(1) + 's', 
             icon: Timer, 
-            trend: comps['averageTime']?.replace(/\ss\sfaster/g, 's faster').trim() || 'N/A', 
-            trendUp: this.isTrendUp(comps['averageTime']) 
+            trend: avgTimeTrend, 
+            trendUp: this.isTrendUp(avgTimeTrend),
+            trendDown: this.isTrendDown(avgTimeTrend)
         },
         { 
             title: 'Success Rate', 
-            // 🔥 FINAL FIX: Use the defensively cleaned and formatted value
             value: successRateValue, 
             icon: CheckCircle2, 
             trend: successTrend, 
-            trendUp: this.isTrendUp(successTrend) 
+            trendUp: this.isTrendUp(successTrend),
+            trendDown: this.isTrendDown(successTrend)
         },
         { 
             title: 'Active Tests', 
             value: stats.activeTests, 
             icon: TrendingUp, 
             trend: 'Currently running', 
-            trendUp: true 
+            trendUp: true, 
+            trendDown: false
         },
     ];
     
     this.statCards = [...cards];
     this.cdr.detectChanges(); 
-}
+  }
 }

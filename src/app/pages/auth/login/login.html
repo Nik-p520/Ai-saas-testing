@@ -1,12 +1,10 @@
 <div class="min-h-screen flex items-center justify-center p-4 bg-[linear-gradient(135deg,#201617,#161010,#171010)]">
   <div class="w-full max-w-md space-y-8">
+    
     <!-- Logo and Title -->
     <div class="text-center space-y-2">
       <div class="flex items-center justify-center gap-3 mb-4">
-        
-        <h1
-          class="text-4xl font-bold bg-gradient-to-r from-[#ff4c00] to-[#ff914d] bg-clip-text text-transparent"
-        >
+        <h1 class="text-4xl font-bold bg-gradient-to-r from-[#ff4c00] to-[#ff914d] bg-clip-text text-transparent">
           Testee
         </h1>
       </div>
@@ -23,23 +21,26 @@
       </p>
 
       <form [formGroup]="loginForm" (ngSubmit)="onSubmit()" class="space-y-4">
+        
+        <!-- Email Input -->
         <div class="space-y-2">
-          <label for="username" class="block text-[#d1bfbf] font-medium">Username</label>
+          <label for="email" class="block text-[#d1bfbf] font-medium">Email</label>
           <input
-            id="username"
-            type="text"
-            placeholder="Enter your username"
-            formControlName="username"
+            id="email"
+            type="email"
+            placeholder="Enter your email"
+            formControlName="email"
             class="w-full px-4 py-3 bg-transparent border border-[#322625] rounded-lg focus:ring-2 focus:ring-[#ff4c00] transition-all outline-none text-white placeholder-[#a59494]"
           />
           <div
-            *ngIf="loginForm.get('username')?.touched && loginForm.get('username')?.invalid"
+            *ngIf="loginForm.get('email')?.touched && loginForm.get('email')?.invalid"
             class="text-red-500 text-sm"
           >
-            Username is required.
+            Valid Email is required.
           </div>
         </div>
 
+        <!-- Password Input -->
         <div class="space-y-2">
           <label for="password" class="block text-[#d1bfbf] font-medium">Password</label>
           <input
@@ -57,12 +58,31 @@
           </div>
         </div>
 
+        <!-- Sign In Button -->
         <button
           type="submit"
           class="w-full bg-gradient-to-r from-[#ff4c00] to-[#79411f] text-white py-2 rounded-lg hover:from-[#ff6633] hover:to-[#57301d] transition shadow-md"
+          [disabled]="isLoading"
         >
-          Sign In
+          {{ isLoading ? 'Logging In...' : 'Sign In' }}
         </button>
+
+        <div class="flex items-center my-6">
+         <div class="flex-grow border-t border-gray-400"></div>
+         <span class="mx-4 text-gray-600 font-semibold">OR</span>
+         <div class="flex-grow border-t border-gray-400"></div>
+        </div>
+
+        <!-- Google Login Button (Added Here) -->
+        <button 
+          type="button" 
+          (click)="loginWithGoogle()"
+          class="w-full bg-white text-black py-2 rounded-lg hover:bg-gray-200 transition font-medium mt-2 flex justify-center items-center gap-2"
+        >
+          <img src="https://www.svgrepo.com/show/475656/google-color.svg" class="w-5 h-5" alt="google">
+          Log in with Google
+        </button>
+
       </form>
 
       <div class="mt-6 text-center">
@@ -70,7 +90,7 @@
           Don't have an account?
           <a
             routerLink="/signup"
-            class="text-[#ff4c00] hover:text-[#ff914d] font-medium"
+            class="text-[#ff4c00] hover:text-[#ff914d] font-medium cursor-pointer"
           >
             Sign up
           </a>
@@ -79,4 +99,3 @@
     </div>
   </div>
 </div>
-

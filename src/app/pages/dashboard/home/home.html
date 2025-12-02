@@ -1,61 +1,49 @@
 <!-- Dashboard Home Page -->
 <div class="min-h-full text-foreground space-y-6 p-6 animate-fade-in">
 
-<!-- Greetings -->
- <!-- <div class="flex items-center justify-center h-20 w-full">
-    <h1 class="bg-gradient-to-r from-[#ff4c00] to-[#ff914d] bg-clip-text text-transparent text-5xl  momo-signature-regular tracking-wide whitespace-nowrap">Testee</h1>
-
- </div> -->
-
   <!-- Header -->
   <div>
-    <h1 class="bg-gradient-to-r from-[#ff4c00] to-[#ff914d] bg-clip-text text-transparent text-3xl font-bold tracking-wide whitespace-nowrap">
-      Dashboard
+    <!-- ✅ Dynamic Name Here -->
+    <h1 class="bg-gradient-to-r from-[#ff4c00] to-[#ff914d] bg-clip-text text-transparent text-4xl font-bold tracking-wide whitespace-nowrap">
+      Hello, {{ userName }} 👋
     </h1>
-    <p class="text-[#d1bfbf] mt-1 text-lg">
-      Overview of your automated test executions
+    <p class="text-[#d1bfbf] mt-1 text-2xl">
+      Welcome back to Testee!
     </p>
   </div>
 
   <!-- Dashboard Stat Cards Wrapper -->
-<div class="grid gap-6 md:grid-cols-2 lg:grid-cols-4">
-  
-  <!-- Loading Message -->
-  <!-- <div *ngIf="loadingStats && statCards.length === 0"
-       class="bg-gradient-to-br from-[#2b1d1d] via-[#231a1b] to-[#1b1313] border border-[#322625] rounded-2xl shadow-xl p-6 col-span-full text-gray-400 text-center">
-    Loading...
-  </div> -->
+  <div class="grid gap-6 md:grid-cols-2 lg:grid-cols-4">
+    
+    <!-- Error -->
+    <div *ngIf="!loadingStats && errorStats" class="bg-gradient-to-br from-[#2b1d1d] via-[#231a1b] to-[#1b1313] border border-[#322625] rounded-2xl shadow-xl p-6 col-span-full text-red-500 text-center">
+      {{ errorStats }}
+    </div>
 
-  <!-- Error -->
-  <div *ngIf="!loadingStats && errorStats" class="bg-gradient-to-br from-[#2b1d1d] via-[#231a1b] to-[#1b1313] border border-[#322625] rounded-2xl shadow-xl p-6 col-span-full text-red-500 text-center">
-    {{ errorStats }}
+    <!-- Loading Skeleton -->
+    <ng-container *ngIf="loadingStats">
+      <app-stat-card *ngFor="let card of statCards" [loading]="true"></app-stat-card>
+    </ng-container>
+
+    <!-- Actual Cards -->
+    <ng-container *ngIf="!loadingStats && !errorStats">
+      <app-stat-card
+        *ngFor="let card of statCards"
+        [title]="card.title"
+        [value]="card.value"
+        [icon]="card.icon"
+        [trend]="card.trend"
+        [trendUp]="card.trendUp"
+        [trendDown]="card.trendDown" 
+        [loading]="loadingStats"
+        [error]="errorStats"
+      ></app-stat-card>
+    </ng-container>
+
   </div>
-
-  <!-- Loading Skeleton -->
-  <ng-container *ngIf="loadingStats">
-    <app-stat-card *ngFor="let card of statCards" [loading]="true"></app-stat-card>
-  </ng-container>
-
-  <!-- Actual Cards -->
-  <ng-container *ngIf="!loadingStats && !errorStats">
-    <app-stat-card
-      *ngFor="let card of statCards"
-      [title]="card.title"
-      [value]="card.value"
-      [icon]="card.icon"
-      [trend]="card.trend"
-      [trendUp]="card.trendUp"
-      [loading]="loadingStats"
-      [error]="errorStats"
-    ></app-stat-card>
-  </ng-container>
-
-</div>
-
 
   <!-- Charts -->
   <div class="grid gap-6 md:grid-cols-2">
-
     <app-test-trends-chart
       [trends]="trends"
       [loading]="loadingTrends"
@@ -69,7 +57,6 @@
       [noData]="noDataDistribution"
       [error]="errorDistribution">
     </app-test-distribution-chart>
-
   </div>
 
   <!-- Table -->

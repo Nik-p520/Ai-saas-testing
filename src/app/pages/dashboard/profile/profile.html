@@ -1,4 +1,4 @@
-<div class="flex flex-col p-6 animate-fade-in">
+<div class="flex flex-col p-6 animate-fade-in text-[#d1bfbf]">
   <!-- Header -->
   <div>
     <h1
@@ -25,15 +25,32 @@
     </div>
 
     <div class="pb-6 flex items-center gap-6 border-b border-[#322625]">
+      <!-- Avatar Display -->
       <div
-        class="h-24 w-24 rounded-full flex items-center justify-center text-2xl font-bold bg-gradient-to-r from-[#ff4c00] to-[#ff914d] text-white"
+        class="h-24 w-24 rounded-full flex items-center justify-center text-2xl font-bold bg-gradient-to-r from-[#ff4c00] to-[#ff914d] text-white overflow-hidden border-2 border-[#322625]"
       >
-        {{ getInitials(userData.name) }}
+        <!-- Logic: Agar Avatar hai to wo dikhao, nahi to Initials -->
+        <img *ngIf="userData.avatar" [src]="userData.avatar" alt="Profile" class="w-full h-full object-cover">
+        <span *ngIf="!userData.avatar">{{ getInitials(userData.name) }}</span>
       </div>
 
       <div class="space-y-2">
+        
+        <!-- Hidden Input for File Selection -->
+        <input 
+          #fileInput
+          type="file" 
+          (change)="onFileSelected($event)" 
+          accept="image/*" 
+          class="hidden" 
+          style="display: none;"
+        >
+        
+        <!-- Button Trigger -->
         <button
-          class="border border-[#322625] px-3 py-1.5 text-white hover:border-[#ff4c00] rounded-md text-sm flex items-center gap-2 transition-colors duration-200"
+          type="button"
+          (click)="fileInput.click()" 
+          class="border border-[#322625] px-3 py-1.5 text-white hover:border-[#ff4c00] rounded-md text-sm flex items-center gap-2 transition-colors duration-200 cursor-pointer"
         >
           <i class="fa fa-upload"></i> Upload Photo
         </button>
@@ -47,7 +64,6 @@
         <input
           class="border border-[#322625] rounded-md px-3 py-2 w-full bg-transparent focus:ring-2 focus:ring-[#ff4c00] focus:border-transparent outline-none text-white"
           [(ngModel)]="userData.name"
-          
         />
       </div>
 
@@ -57,7 +73,6 @@
           type="email"
           class="border border-[#322625] rounded-md px-3 py-2 w-full bg-transparent focus:ring-2 focus:ring-[#ff4c00] focus:border-transparent outline-none text-white"
           [(ngModel)]="userData.email"
-          
         />
       </div>
 
@@ -66,20 +81,17 @@
         <input
           class="border border-[#322625] rounded-md px-3 py-2 w-full bg-transparent focus:ring-2 focus:ring-[#ff4c00] focus:border-transparent outline-none text-white"
           [(ngModel)]="userData.role"
-          
         />
       </div>
     </div>
 
     <div class="flex gap-3">
       <button
-        
-        class="w-40 bg-[#ff4c00] text-white px-6 py-2 rounded-md flex items-center justify-center gap-2 hover:bg-[#f86103] transition-colors duration-200"
-        (click)="isEditingProfile = true"
+        class="w-40 bg-[#ff4c00] text-white px-6 py-2 rounded-md flex items-center justify-center gap-2 hover:bg-[#f86103] transition-colors duration-200 font-medium"
+        (click)="handleSaveProfile()"
       >
         Save
       </button>
-
     </div>
   </div>
 
@@ -96,13 +108,13 @@
 
     <button
       *ngIf="!isChangingPassword"
-      class="bg-[#ff4c00] text-white px-4 py-2 rounded-md flex items-center gap-2 hover:bg-[#f86103] transition-colors duration-200"
+      class="bg-[#ff4c00] text-white px-4 py-2 rounded-md flex items-center gap-2 hover:bg-[#f86103] transition-colors duration-200 font-medium"
       (click)="isChangingPassword = true"
     >
       <i class="fa fa-lock"></i> Change Password
     </button>
 
-    <div *ngIf="isChangingPassword" class="space-y-4">
+    <div *ngIf="isChangingPassword" class="space-y-4 animate-in fade-in slide-in-from-top-4 duration-300">
       <div>
         <label class="text-sm font-semibold text-[#d1bfbf]"
           >Current Password</label
@@ -136,13 +148,13 @@
 
       <div class="flex gap-3">
         <button
-          class="bg-[#ff4c00] text-white  px-4 py-2 rounded-md  shadow-lg hover:bg-[#f86103] transition-colors duration-200"
+          class="bg-[#ff4c00] text-white px-4 py-2 rounded-md shadow-lg hover:bg-[#f86103] transition-colors duration-200 font-medium"
           (click)="handleChangePassword()"
         >
           Update Password
         </button>
         <button
-          class="border border-[#322625] text-white  px-4 py-2 rounded-md hover:bg-[#ff4c00] transition-colors duration-200"
+          class="border border-[#322625] text-white px-4 py-2 rounded-md hover:bg-[#ff4c00] hover:text-white transition-colors duration-200"
           (click)="isChangingPassword = false"
         >
           Cancel
@@ -151,7 +163,7 @@
     </div>
   </div>
 
-  <!-- Logout -->
+  <!-- Logout Section -->
   <div
     class="mt-6 w-full max-w-4xl bg-gradient-to-br from-[#2b1d1d] via-[#231a1b] to-[#1b1313] border border-[#322625] rounded-2xl shadow-xl p-6"
   >
@@ -162,10 +174,45 @@
       </p>
     </div>
     <button
-      class="bg-red-600 text-white px-6 py-2 rounded-md mt-3 flex items-center gap-2 hover:bg-red-700 transition"
+      class="bg-red-600 text-white px-6 py-2 rounded-md mt-3 flex items-center gap-2 hover:bg-red-700 transition font-medium shadow-lg shadow-red-900/20"
       (click)="handleLogout()"
     >
       <i class="fa fa-sign-out-alt"></i> Logout
     </button>
   </div>
+
+  <!-- Logout Modal -->
+  <div *ngIf="isLoggingOut" class="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-sm p-4 animate-in fade-in duration-200">
+    <div class="bg-[#201617] border border-[#322625] w-full max-w-sm rounded-xl shadow-2xl transform scale-100 animate-in zoom-in-95 duration-200">
+      
+      <div class="p-6 text-center">
+        <!-- Icon -->
+        <div class="mx-auto w-12 h-12 bg-red-500/10 rounded-full flex items-center justify-center mb-4 border border-red-500/20">
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-red-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+          </svg>
+        </div>
+
+        <h3 class="text-xl font-bold text-white mb-2">Confirm Logout</h3>
+        <p class="text-[#a59494] text-sm mb-6">
+          Are you sure you want to log out of your account? You will need to sign in again to access your data.
+        </p>
+
+        <div class="flex gap-3 justify-center">
+          <button 
+            (click)="cancelLogout()" 
+            class="flex-1 px-4 py-2 rounded-md border border-[#322625] text-[#d1bfbf] hover:bg-[#322625] hover:text-white transition font-medium">
+            Cancel
+          </button>
+          <button 
+            (click)="confirmLogout()" 
+            class="flex-1 px-4 py-2 rounded-md bg-red-600 text-white hover:bg-red-700 transition font-medium shadow-lg shadow-red-900/20">
+            Yes, Logout
+          </button>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
 </div>

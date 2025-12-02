@@ -1,18 +1,18 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 
-import { TestHistoryChart } from './test-history-chart';
+import { TestHistoryTableComponent } from './test-history-chart';
 
 describe('TestHistoryChart', () => {
-  let component: TestHistoryChart;
-  let fixture: ComponentFixture<TestHistoryChart>;
+  let component: TestHistoryTableComponent;
+  let fixture: ComponentFixture<TestHistoryTableComponent>;
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      imports: [TestHistoryChart]
+      imports: [TestHistoryTableComponent]
     })
     .compileComponents();
 
-    fixture = TestBed.createComponent(TestHistoryChart);
+    fixture = TestBed.createComponent(TestHistoryTableComponent);
     component = fixture.componentInstance;
     fixture.detectChanges();
   });

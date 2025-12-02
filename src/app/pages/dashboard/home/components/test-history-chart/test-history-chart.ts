@@ -14,7 +14,8 @@ export class TestHistoryTableComponent implements OnInit, OnChanges {
   @Input() filter: string = '';
   @Input() limit: number | null = null; // 👈 NEW (limit results if provided)
   @Input() showViewAllButton: boolean = false; // 👈 For dashboard “View All” button
-
+  @Input() fullHeight: boolean = false;
+  
   testResults: TestResult[] = [];
   filteredResults: TestResult[] = [];
   loading = false;
