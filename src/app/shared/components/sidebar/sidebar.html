@@ -68,18 +68,32 @@
   </nav>
 
   <!-- Profile Section (Updated with Dynamic Data) -->
-    <div
+  <div
     class="border-t border-[#322625] px-4 py-4 flex items-center gap-3 hover:bg-[#2b1d1e] transition-all duration-200 cursor-pointer"
     [routerLink]="'/dashboard/profile'"
   >
-    <!-- Avatar: Image or Initials -->
-    <div class="h-10 w-10 rounded-full bg-[#332425] flex items-center justify-center text-[#ff4c00] text-xl font-bold shrink-0 overflow-hidden border border-[#322625]">
+    
+    <!-- Avatar Circle -->
+    <div class="relative h-10 w-10 rounded-full bg-[#332425] flex items-center justify-center text-[#ff4c00] text-xl font-bold shrink-0 overflow-hidden border border-[#322625]">
       
-      <!-- ✅ Agar Photo hai to dikhao -->
-      <img *ngIf="userAvatar" [src]="userAvatar" alt="User" class="w-full h-full object-cover">
-      
-      <!-- ✅ Nahi to Initials dikhao -->
-      <span *ngIf="!userAvatar">{{ userName.charAt(0).toUpperCase() }}</span>
+      <!-- 1. Skeleton Loader (Visible if loading data OR loading image) -->
+      <div *ngIf="isLoading || (userAvatar && isImageLoading)" 
+           class="absolute inset-0 bg-[#332425] animate-pulse z-20 flex items-center justify-center">
+      </div>
+
+      <!-- 2. Photo (Always rendered but hidden until loaded) -->
+      <img *ngIf="userAvatar" 
+           [src]="userAvatar" 
+           (load)="onImageLoad()"
+           alt="User" 
+           class="absolute inset-0 w-full h-full object-cover transition-opacity duration-300"
+           [class.opacity-0]="isImageLoading"
+           [class.opacity-100]="!isImageLoading">
+
+      <!-- 3. Initials (Fallback if no avatar and not loading) -->
+      <!-- ✅ FIXED: Removed redundant '?' operators -->
+      <span *ngIf="!userAvatar && !isLoading">{{ userName.charAt(0).toUpperCase() }}</span>
+
     </div>
 
     <!-- Name & Link -->
@@ -90,7 +104,12 @@
       [class.ml-2]="open"
       [class.ml-0]="!open"
     >
-      <span class="text-white font-medium whitespace-nowrap truncate">{{ userName }}</span>
+      <!-- Name Skeleton -->
+      <div *ngIf="isLoading" class="h-4 w-20 bg-[#332425] rounded animate-pulse mb-1"></div>
+      
+      <!-- Actual Name -->
+      <span *ngIf="!isLoading" class="text-white font-medium whitespace-nowrap truncate">{{ userName }}</span>
+      
       <span class="text-sm text-gray-400 whitespace-nowrap">View Profile</span>
     </div>
   </div>

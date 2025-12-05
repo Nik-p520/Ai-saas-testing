@@ -1,205 +1,423 @@
-<div class="min-h-screen">
-  <!-- Header -->
-  <div class="border-b border-[#322625]">
-    <div class="max-w-5xl mx-auto px-4 py-8">
-      <h1
-        class="text-4xl font-bold bg-gradient-to-r from-[#ff4c00] to-[#ff914d] bg-clip-text text-transparent mb-2"
-      >
-        Test Result
-      </h1>
-      <p class="text-[#d1bfbf] text-lg">
-        AI-generated Playwright test report preview
-      </p>
-    </div>
-  </div>
+<!-- ✅ PRINT STYLES: Transforms UI into a clean Document/Notes format -->
+<style>
+  @media print {
+    /* --- 1. GLOBAL RESET --- */
+    @page { margin: 2cm; size: A4; }
+    
+    body {
+      background-color: white !important;
+      color: #000 !important;
+      font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif !important;
+      line-height: 1.5 !important;
+      font-size: 11pt !important;
+    }
 
-  <!-- Loading Spinner -->
-  <div *ngIf="loading" class="flex flex-col items-center justify-center mt-20">
-    <div
-      class="w-12 h-12 border-4 border-blue-500 border-t-transparent rounded-full animate-spin"
-    ></div>
-    <p class="mt-4 text-[#d1bfbf]">Running test, please wait...</p>
-  </div>
+    /* Hide UI Elements */
+    app-sidebar, app-navbar, .header-actions, button, .no-print, 
+    .absolute, svg, .rounded-full, .bg-gradient-to-r { 
+      display: none !important; 
+    }
 
-  <!-- Error Message -->
-  <div *ngIf="errorMessage" class="text-center mt-10 text-red-600 text-lg">
-    {{ errorMessage }}
-  </div>
+    /* Reset Container Layouts */
+    .min-h-screen, .max-w-6xl { 
+      min-height: 0 !important; 
+      max-width: 100% !important; 
+      padding: 0 !important; 
+      margin: 0 !important;
+    }
 
-  <!-- Main Content -->
-  <div
-    *ngIf="!loading && testResult"
-    class="max-w-5xl mx-auto px-4 py-8 space-y-8"
-  >
-    <!-- Summary -->
-<!-- Summary -->
-<div *ngIf="testResult as result"
-  class="bg-gradient-to-br from-[#2b1d1d] via-[#231a1b] to-[#1b1313] border border-[#322625] rounded-2xl shadow p-6"
->
-  <div class="flex justify-between items-center">
+    /* --- 2. HEADER & SUMMARY --- */
+    /* Transform Header into a Report Title */
+    h1 { 
+      color: #000 !important; 
+      font-size: 24pt !important; 
+      margin-bottom: 5px !important; 
+      text-align: center;
+      border-bottom: 2px solid #000;
+      padding-bottom: 10px;
+    }
+    
+    p.text-\[\#887777\] { display: none !important; } /* Hide subtitle */
+
+    /* Transform Quick Stats Grid into a Table-like Row */
+    .flex-wrap {
+      display: flex !important;
+      flex-direction: row !important;
+      justify-content: space-between !important;
+      border-bottom: 1px solid #ccc;
+      padding-bottom: 15px !important;
+      margin-bottom: 20px !important;
+    }
+    
+    /* Stats Text */
+    .text-\[\#887777\] { color: #666 !important; font-size: 9pt !important; }
+    .text-white { color: #000 !important; }
+
+    /* --- 3. SECTIONS TO "NOTES" FORMAT --- */
+    /* Remove card styles (backgrounds, borders) */
+    .bg-\[\#1a1415\]\/60, .bg-\[\#1a1415\]\/40, .bg-\[\#1a1415\]\/90, .border {
+      background: none !important;
+      border: none !important;
+      box-shadow: none !important;
+      border-radius: 0 !important;
+      padding: 0 !important;
+      margin: 0 !important;
+      backdrop-filter: none !important;
+    }
+
+    /* Section Headers */
+    h3 {
+      font-size: 14pt !important;
+      font-weight: bold !important;
+      color: #000 !important;
+      margin-top: 30px !important;
+      margin-bottom: 10px !important;
+      text-transform: uppercase;
+      border-bottom: 1px solid #eee;
+    }
+
+    /* --- 4. LIST ITEMS (Bugs & Recommendations) --- */
+    /* Convert div grids into simple lists */
+    .grid { display: block !important; }
+    
+    /* Style individual items as "Points" */
+    .space-y-3 > div, .gap-3 > div {
+      margin-bottom: 15px !important;
+      padding-left: 20px !important;
+      border-left: 3px solid #ccc !important; /* Simple marker line */
+      page-break-inside: avoid;
+    }
+
+    /* Hide the UI tags inside items */
+    .rounded-xl { border: none !important; background: none !important; }
+    
+    /* Make Titles Bold */
+    h4, .font-medium { 
+      font-weight: bold !important; 
+      font-size: 11pt !important;
+      color: #000 !important; 
+    }
+    
+    /* Descriptions */
+    p.text-sm {
+      color: #333 !important;
+      margin-top: 2px !important;
+    }
+
+    /* --- 5. LOGS & SCRIPT --- */
+    .max-h-\[350px\], .max-h-\[400px\], .max-h-\[300px\] {
+      max-height: none !important;
+      overflow: visible !important;
+    }
+    
+    pre, code {
+      background: #f5f5f5 !important;
+      border: 1px solid #ddd !important;
+      font-size: 9pt !important;
+      font-family: 'Courier New', Courier, monospace !important;
+      white-space: pre-wrap !important;
+      color: #333 !important;
+      padding: 10px !important;
+    }
+
+    /* Hide Screenshots for "Notes" feel? Or keep them? */
+    /* Let's keep them but make them small */
+    img {
+      max-width: 45% !important;
+      display: inline-block !important;
+      margin-right: 10px !important;
+      border: 1px solid #eee !important;
+    }
+  }
+</style>
+
+<div class="min-h-screen p-6 animate-fade-in text-[#d1bfbf]">
+  
+  <!-- Header Section -->
+  <div class="max-w-6xl mx-auto mb-8 flex flex-col md:flex-row md:items-center justify-between gap-4">
     <div>
-      <h2 class="text-xl text-[#ff4c00] font-semibold">
-        {{ result.websiteUrl || 'No Website URL' }}
-      </h2>
-      <p class="text-sm text-[#d1bfbf] mt-1">
-        Executed at {{ result.executionTime | date: 'medium' }}
+      <h1 class="text-3xl font-bold text-white tracking-tight">
+        Test Report
+      </h1>
+      <p class="text-[#887777] text-sm mt-1">
+        Generated Analysis Report
       </p>
     </div>
 
-    <span
-      class="px-3 py-1 text-sm rounded-full font-medium"
-      [ngClass]="{
-        'bg-green-200 text-green-700': result.status === 'passed',
-        'bg-yellow-200 text-yellow-800': result.status === 'processing',
-        'bg-red-200 text-red-700': result.status === 'failed'
-      }"
-    >
-      {{ result.status | titlecase }}
-    </span>
-  </div>
-
-  <div class="mt-4 grid grid-cols-2 md:grid-cols-4 gap-4 text-sm text-[#d1bfbf]">
-    <p><strong>Duration:</strong> {{ result.duration }}</p>
-    <p><strong>Browser:</strong> {{ result.browser }}</p>
-    <p><strong>Test ID:</strong> {{ result.id }}</p>
-  </div>
-</div>
-
-
-    <!-- Logs -->
-    <div
-      *ngIf="testResult?.logs?.length"
-      class="bg-gradient-to-br from-[#2b1d1d] via-[#231a1b] to-[#1b1313] border border-[#322625] rounded-2xl shadow p-6"
-    >
-      <h3 class="text-lg text-[#d1bfbf] font-semibold mb-4 flex items-center gap-2">
-        🖥️ Execution Logs
-      </h3>
-      <div
-        class="bg-[#000000] text-gray-100 p-4 font-mono text-sm max-h-64 overflow-y-auto rounded-lg whitespace-pre-wrap"
-      >
-        <div *ngFor="let log of testResult?.logs">• {{ log }}</div>
-      </div>
-    </div>
-
-    <!-- Bugs -->
-<div
-  *ngIf="testResult?.bugs?.length"
-  class="bg-gradient-to-br from-[#2b1d1d] via-[#231a1b] to-[#1b1313] border border-[#322625] rounded-2xl shadow-lg p-6"
->
-  <h3 class="text-lg text-[#d1bfbf] font-semibold mb-4 flex items-center gap-2">
-    🐞 Bugs Detected
-  </h3>
-
-  <div class="space-y-4">
-    <div
-      *ngFor="let bug of testResult?.bugs"
-      class="p-4 rounded-lg bg-gradient-to-br from-[#201617] via-[#161010] to-[#171010] border border-red-900 shadow-md "
-    >
-      <p class="font-semibold text-red-700">{{ bug.title }}</p>
-      <p class="text-sm text-red-600 mt-1">{{ bug.description }}</p>
-      <span
-        class="mt-3 inline-block text-xs px-2 py-1 rounded bg-red-900/40 text-red-200 font-medium border border-red-800/40"
-      >
-        Severity: {{ bug.severity | titlecase }}
-      </span>
-    </div>
-  </div>
-</div>
-
-
-    <!-- Recommendations -->
-    <div
-      *ngIf="testResult?.recommendations?.length"
-      class="bg-gradient-to-br from-[#2b1d1d] via-[#231a1b] to-[#1b1313] border border-[#322625] rounded-2xl shadow p-6"
-    >
-      <h3 class="text-lg text-[#d1bfbf] font-semibold mb-4 flex items-center gap-2">
-        💡 AI Recommendations
-      </h3>
-      <div class="space-y-4">
-        <div
-          *ngFor="let rec of testResult?.recommendations"
-          class="p-4 rounded-lg bg-gradient-to-br from-[#201617] via-[#161010] to-[#171010] border border-yellow-900 shadow-md"
-        >
-          <p class="font-semibold text-yellow-700">{{ rec.title }}</p>
-          <p class="text-sm text-yellow-600 mt-1">{{ rec.description }}</p>
-          <div class="mt-2 flex gap-2 text-xs">
-            <span
-              class="px-2 py-1 rounded bg-yellow-200 text-yellow-800 font-medium"
-            >
-              Impact: {{ rec.impact | titlecase }}
-            </span>
-            <span
-              class="px-2 py-1 rounded bg-blue-200 text-blue-800 font-medium"
-            >
-              Category: {{ rec.category }}
-            </span>
-          </div>
-        </div>
-      </div>
-    </div>
-
-    <!-- Screenshots -->
-    <div
-      *ngIf="testResult?.screenshots?.length"
-      class="bg-gradient-to-br from-[#2b1d1d] via-[#231a1b] to-[#1b1313] border border-[#322625] rounded-2xl shadow p-6"
-    >
-      <h3 class="text-lg text-[#d1bfbf] font-semibold mb-4">Screenshots</h3>
-      <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4">
-        <div *ngFor="let shot of testResult?.screenshots" class="text-center">
-          <img
-            [src]="shot.url"
-            alt="Test Screenshot"
-            class="rounded-lg text-[#d1bfbf] border hover:scale-105 transition-transform duration-200"
-          />
-          <p class="text-sm text-[#d1bfbf] mt-2">
-            {{ shot.caption }}
-          </p>
-        </div>
-      </div>
-    </div>
-
-    <!-- Script -->
-<div *ngIf="testResult as result">
-  <div
-    *ngIf="result.script"
-    class="bg-gradient-to-br from-[#2b1d1d] via-[#231a1b] to-[#1b1313] border border-[#322625] rounded-2xl shadow p-6"
-  >
-    <div class="flex justify-between items-center mb-4">
-      <h3 class="text-lg text-[#d1bfbf] font-semibold flex items-center gap-2">
-        📜 AI-Generated Script
-      </h3>
-      <button
-        class="flex items-center gap-2 px-3 py-1 rounded text-white transition"
-        [ngClass]="copied ? 'bg-green-600 hover:bg-green-700' : 'bg-[#ff4c00] hover:bg-[#ff914d]'"
-        (click)="copyScript()"
-      >
-        {{ copied ? 'Copied!' : 'Copy Script' }}
-      </button>
-    </div>
-
-    <pre
-      class="bg-[#000000] text-green-300 p-4 font-mono text-sm max-h-96 overflow-y-auto rounded-lg whitespace-pre-wrap"
-    >
-      <code>{{ result.script }}</code>
-    </pre>
-  </div>
-</div>
-
-    <!-- Buttons -->
-    <div class="flex justify-end gap-3">
+    <!-- Top Actions -->
+    <div class="flex items-center gap-3 header-actions" *ngIf="!loading && testResult">
       <button
         (click)="handleRerun()"
-        class="flex items-center gap-2 px-3 py-1 rounded bg-[#ff4c00]  text-white hover:bg-[#ff914d] transition"
+        class="px-5 py-2.5 rounded-xl bg-[#ff4c00] text-white text-sm font-semibold hover:bg-[#e64400] transition-all shadow-[0_4px_20px_rgba(255,76,0,0.2)] active:scale-95 flex items-center gap-2"
       >
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M4 2a1 1 0 011 1v2.101a7.002 7.002 0 0111.601 2.566 1 1 0 11-1.885.666A5.002 5.002 0 005.999 7H9a1 1 0 010 2H4a1 1 0 01-1-1V3a1 1 0 011-1zm.008 9.057a1 1 0 011.276.61A5.002 5.002 0 0014.001 13H11a1 1 0 110-2h5a1 1 0 011 1v5a1 1 0 11-2 0v-2.101a7.002 7.002 0 01-11.601-2.566 1 1 0 01.61-1.276z" clip-rule="evenodd" /></svg>
         Re-run Test
       </button>
 
       <button
         (click)="handleDownload()"
-        class="flex items-center gap-2 px-4 py-2 rounded-lg bg-gray-200 text-gray-800 hover:bg-gray-300 transition"
+        class="px-5 py-2.5 rounded-xl bg-[#1a1415] border border-[#322625] text-[#d1bfbf] text-sm font-semibold hover:bg-[#251b1d] hover:text-white transition-all flex items-center gap-2"
       >
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" viewBox="0 0 20 20" fill="currentColor"><path d="M6 2a2 2 0 00-2 2v12a2 2 0 002 2h8a2 2 0 002-2V7.414A2 2 0 0015.414 6L12 2.586A2 2 0 0010.586 2H6zm5 6a1 1 0 10-2 0v3.586l-1.293-1.293a1 1 0 10-1.414 1.414l3 3a1 1 0 001.414 0l3-3a1 1 0 00-1.414-1.414L11 11.586V8z" /></svg>
         Download Report
       </button>
     </div>
+  </div>
+  
+  <!-- ✅ LOADING STATE: VERTICAL STEPPER (Shown during Re-Run) -->
+  <div *ngIf="loading" class="flex-1 w-full max-w-3xl mx-auto flex flex-col justify-center animate-fade-in overflow-hidden min-h-[60vh]">
+    
+    <div class="bg-[#1a1415]/90 backdrop-blur-xl border border-[#322625] rounded-3xl shadow-2xl p-6 w-full relative flex flex-col max-h-full">
+      
+      <!-- Ambient Glow -->
+      <div class="absolute top-0 left-1/2 -translate-x-1/2 w-full h-1 bg-gradient-to-r from-transparent via-[#ff4c00] to-transparent opacity-30"></div>
+
+      <div class="text-center mb-4 shrink-0">
+        <h2 class="text-2xl font-bold text-white mb-1">
+          Running Diagnostics
+        </h2>
+        <p class="text-[#887777] text-sm">Please keep this window open.</p>
+      </div>
+
+      <!-- Stepper Container -->
+      <div class="relative pl-2 md:pl-12 flex-1 flex flex-col justify-start pt-4 overflow-y-auto custom-scrollbar">
+        
+        <div *ngFor="let step of steps; let i = index" class="relative pb-6 last:pb-0 group">
+          
+          <!-- Connecting Line -->
+          <div *ngIf="i !== steps.length - 1" 
+               class="absolute left-[19px] top-10 h-full w-[2px] -z-10 transition-all duration-700 ease-in-out"
+               [ngClass]="i < currentStepIndex ? 'bg-[#ff4c00]' : 'bg-[#322625]'">
+          </div>
+          
+          <div class="flex items-start gap-5">
+            
+            <!-- Circle Indicator -->
+            <div class="w-10 h-10 rounded-full flex items-center justify-center border-2 transition-all duration-500 shrink-0 relative z-20 bg-[#120c0d]"
+                 [ngClass]="{
+                   'border-[#ff4c00] scale-100': i < currentStepIndex,
+                   'border-[#ff4c00] scale-110': i === currentStepIndex,
+                   'border-[#322625] text-gray-700': i > currentStepIndex
+                 }">
+               
+               <!-- Checkmark (Orange) -->
+               <svg *ngIf="i < currentStepIndex" xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-[#ff4c00] animate-scale-in" viewBox="0 0 20 20" fill="currentColor">
+                 <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd" />
+               </svg>
+
+               <!-- Spinner/Dot -->
+               <div *ngIf="i === currentStepIndex" class="relative flex items-center justify-center">
+                 <span class="absolute inline-flex h-full w-full rounded-full bg-[#ff4c00] opacity-75 animate-ping"></span>
+                 <div class="w-3 h-3 rounded-full bg-[#ff4c00]"></div>
+               </div>
+
+               <!-- Number -->
+               <span *ngIf="i > currentStepIndex" class="text-xs font-mono font-bold text-[#443333]">{{ i + 1 }}</span>
+            </div>
+
+            <!-- Text Content -->
+            <div class="flex flex-col pt-1.5 transition-all duration-300" 
+                 [class.translate-x-1]="i === currentStepIndex">
+              
+              <span class="text-base font-bold transition-colors duration-300 leading-none"
+                    [ngClass]="i <= currentStepIndex ? 'text-white' : 'text-[#443333]'">
+                {{ step.label }}
+              </span>
+              
+              <!-- Live Status Message -->
+              <div *ngIf="i === currentStepIndex" class="overflow-hidden transition-all duration-500 max-h-20 opacity-100 mt-1">
+                 <p class="text-xs text-[#ff4c00] font-mono animate-pulse flex items-center gap-2">
+                   <span class="w-1.5 h-1.5 rounded-full bg-[#ff4c00]"></span>
+                   {{ statusMessage || 'Processing...' }}
+                 </p>
+              </div>
+
+              <!-- Faded description -->
+              <p *ngIf="i !== currentStepIndex" class="text-xs mt-0.5 transition-colors duration-300"
+                 [ngClass]="i < currentStepIndex ? 'text-gray-500' : 'text-[#2a2020]'">
+                 {{ i < currentStepIndex ? 'Done' : 'Pending' }}
+              </p>
+
+            </div>
+
+          </div>
+        </div>
+
+      </div>
+
+    </div>
+  </div>
+
+  <!-- Error State -->
+  <div *ngIf="errorMessage && !loading" class="max-w-2xl mx-auto mt-10 p-6 bg-red-900/10 border border-red-900/30 rounded-2xl text-center">
+    <div class="inline-flex items-center justify-center w-12 h-12 rounded-full bg-red-900/20 text-red-500 mb-4">
+      <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" /></svg>
+    </div>
+    <h3 class="text-lg font-semibold text-white">Analysis Failed</h3>
+    <p class="text-red-400 mt-1">{{ errorMessage }}</p>
+    <button (click)="handleRerun()" class="mt-6 px-6 py-2 bg-red-900/30 hover:bg-red-900/50 text-red-200 rounded-lg text-sm font-medium transition-colors">Try Again</button>
+  </div>
+
+  <!-- ✅ Main Content (List View) -->
+  <div *ngIf="!loading && testResult" class="max-w-6xl mx-auto space-y-8">
+    
+    <!-- 1. Overview Card -->
+    <div class="bg-[#1a1415]/60 backdrop-blur-md border border-[#322625] rounded-2xl p-6 relative overflow-hidden">
+      <!-- Decorator Line -->
+      <div class="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-[#ff4c00] to-transparent opacity-50"></div>
+      
+      <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-6">
+        <div>
+          <div class="flex items-center gap-3 mb-2">
+            <span class="px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider border"
+              [ngClass]="{
+                'bg-green-500/10 text-green-400 border-green-500/20': testResult.status === 'passed',
+                'bg-red-500/10 text-red-400 border-red-500/20': testResult.status === 'failed',
+                'bg-yellow-500/10 text-yellow-400 border-yellow-500/20': testResult.status === 'processing'
+              }">
+              {{ testResult.status }}
+            </span>
+            <span class="text-[#554444] text-xs font-mono">{{ testResult.id }}</span>
+          </div>
+          <h2 class="text-2xl font-semibold text-white truncate max-w-2xl">
+            <a [href]="testResult.websiteUrl" target="_blank" class="hover:text-[#ff4c00] transition-colors flex items-center gap-2">
+              {{ testResult.websiteUrl }}
+              <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 opacity-50" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" /></svg>
+            </a>
+          </h2>
+        </div>
+
+        <!-- ✅ REDESIGNED QUICK STATS -->
+        <div class="flex flex-wrap gap-3 mt-4 md:mt-0">
+          
+          <!-- Duration -->
+          <div class="flex items-center gap-3 px-4 py-2 bg-[#120c0d]/50 border border-[#322625] rounded-xl hover:border-[#443333] transition-colors">
+            <div class="p-1.5 bg-[#322625]/50 rounded-lg text-[#ff4c00]">
+              <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-12a1 1 0 10-2 0v4a1 1 0 00.293.707l2.828 2.829a1 1 0 101.415-1.415L11 9.586V6z" clip-rule="evenodd" /></svg>
+            </div>
+            <div>
+              <p class="text-[10px] text-[#887777] uppercase font-bold tracking-wider leading-none mb-1">Duration</p>
+              <p class="text-white text-sm font-mono font-medium leading-none">{{ testResult.duration }}</p>
+            </div>
+          </div>
+
+          <!-- Browser -->
+          <div class="flex items-center gap-3 px-4 py-2 bg-[#120c0d]/50 border border-[#322625] rounded-xl hover:border-[#443333] transition-colors">
+            <div class="p-1.5 bg-[#322625]/50 rounded-lg text-blue-400">
+              <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM4.332 8.027a6.012 6.012 0 011.912-2.706C6.512 5.73 6.974 6 7.5 6A1.5 1.5 0 019 7.5V8a2 2 0 004 0 2 2 0 011.523-1.943A5.977 5.977 0 0116 10c0 .34-.028.675-.083 1H15a2 2 0 00-2 2v2.197A5.973 5.973 0 0110 16v-2a2 2 0 00-2-2 2 2 0 01-2-2 2 2 0 00-1.668-1.973z" clip-rule="evenodd" /></svg>
+            </div>
+            <div>
+              <p class="text-[10px] text-[#887777] uppercase font-bold tracking-wider leading-none mb-1">Browser</p>
+              <p class="text-white text-sm font-mono font-medium leading-none capitalize">{{ testResult.browser }}</p>
+            </div>
+          </div>
+
+          <!-- Executed -->
+          <div class="flex items-center gap-3 px-4 py-2 bg-[#120c0d]/50 border border-[#322625] rounded-xl hidden sm:flex hover:border-[#443333] transition-colors">
+            <div class="p-1.5 bg-[#322625]/50 rounded-lg text-green-400">
+              <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M6 2a1 1 0 00-1 1v1H4a2 2 0 00-2 2v10a2 2 0 002 2h12a2 2 0 002-2V6a2 2 0 00-2-2h-1V3a1 1 0 10-2 0v1H7V3a1 1 0 00-1-1zm0 5a1 1 0 000 2h8a1 1 0 100-2H6z" clip-rule="evenodd" /></svg>
+            </div>
+            <div>
+              <p class="text-[10px] text-[#887777] uppercase font-bold tracking-wider leading-none mb-1">Executed</p>
+              <p class="text-white text-sm font-mono font-medium leading-none">{{ testResult.executionTime | date:'MMM d, h:mm a' }}</p>
+            </div>
+          </div>
+
+        </div>
+
+      </div>
+    </div>
+      
+    <!-- 2. Issues Detected (Scrollable List) -->
+    <div class="bg-[#1a1415]/40 border border-[#322625] rounded-2xl overflow-hidden flex flex-col">
+      <div class="p-4 border-b border-[#322625] flex justify-between items-center bg-[#150f10]">
+        <h3 class="font-semibold text-white flex items-center gap-2">
+          <span class="w-2 h-2 rounded-full bg-red-500"></span>
+          Issues Detected <span class="text-[#554444] font-normal text-sm">({{ testResult.bugs?.length || 0 }})</span>
+        </h3>
+      </div>
+      
+      <div class="overflow-y-auto custom-scrollbar max-h-[350px] p-4 space-y-3" *ngIf="testResult.bugs && testResult.bugs.length > 0; else noBugs">
+        <div *ngFor="let bug of testResult.bugs" class="p-4 rounded-xl bg-red-500/5 border border-red-500/10 hover:border-red-500/30 transition-colors group">
+          <div class="flex justify-between items-start mb-1">
+            <span class="text-red-400 font-medium group-hover:text-red-300">{{ bug.title }}</span>
+            <span class="text-[10px] uppercase font-bold px-2 py-0.5 rounded bg-red-500/10 text-red-500 border border-red-500/20">
+              {{ bug.severity }}
+            </span>
+          </div>
+          <p class="text-[#887777] text-sm">{{ bug.description }}</p>
+        </div>
+      </div>
+      <ng-template #noBugs>
+        <div class="p-8 text-center text-[#554444]">
+          <p>No critical bugs detected. Great job!</p>
+        </div>
+      </ng-template>
+    </div>
+
+    <!-- 3. Recommendations (Scrollable List) -->
+    <div class="bg-[#1a1415]/40 border border-[#322625] rounded-2xl overflow-hidden flex flex-col" *ngIf="testResult.recommendations?.length">
+      <div class="p-4 border-b border-[#322625] flex justify-between items-center bg-[#150f10]">
+        <h3 class="font-semibold text-white flex items-center gap-2">
+          <span class="w-2 h-2 rounded-full bg-yellow-500"></span>
+          AI Recommendations
+        </h3>
+      </div>
+      <div class="overflow-y-auto custom-scrollbar max-h-[350px] p-4 space-y-3">
+        <div *ngFor="let rec of testResult.recommendations" class="p-4 rounded-xl bg-[#1f1819] border border-[#322625] hover:border-[#443333] transition-colors">
+          <div class="flex items-center gap-2 mb-2">
+            <span class="text-xs font-bold text-[#ff4c00] uppercase tracking-wide">{{ rec.category }}</span>
+            <span class="w-1 h-1 rounded-full bg-[#322625]"></span>
+            <span class="text-xs text-[#554444] uppercase tracking-wide">Impact: {{ rec.impact }}</span>
+          </div>
+          <h4 class="text-white font-medium mb-1">{{ rec.title }}</h4>
+          <p class="text-[#887777] text-sm">{{ rec.description }}</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- 4. Screenshots -->
+    <div class="bg-[#1a1415]/40 border border-[#322625] rounded-2xl overflow-hidden">
+      <div class="p-4 border-b border-[#322625] bg-[#150f10]">
+        <h3 class="font-semibold text-white">Visual Evidence</h3>
+      </div>
+      <div class="p-4 grid grid-cols-2 md:grid-cols-4 gap-4">
+        <div *ngFor="let shot of testResult.screenshots" class="group relative aspect-video bg-black rounded-lg overflow-hidden border border-[#322625]">
+          <img [src]="shot.url" class="w-full h-full object-cover opacity-80 group-hover:opacity-100 transition-all duration-300 group-hover:scale-105" alt="Screenshot">
+          <div class="absolute inset-0 bg-gradient-to-t from-black/80 to-transparent opacity-0 group-hover:opacity-100 transition-opacity flex items-end p-2">
+            <p class="text-[10px] text-white truncate">{{ shot.caption }}</p>
+          </div>
+        </div>
+        <div *ngIf="!testResult.screenshots?.length" class="col-span-full text-center py-6 text-sm text-[#554444]">
+          No screenshots captured
+        </div>
+      </div>
+    </div>
+
+    <!-- 5. Script -->
+    <div class="bg-[#1a1415]/40 border border-[#322625] rounded-2xl overflow-hidden flex flex-col">
+      <div class="p-4 border-b border-[#322625] bg-[#150f10] flex justify-between items-center">
+        <h3 class="font-semibold text-white">Test Script</h3>
+        <button (click)="copyScript()" class="text-xs text-[#ff4c00] hover:text-white transition-colors">
+          {{ copied ? 'Copied!' : 'Copy Code' }}
+        </button>
+      </div>
+      <div class="overflow-y-auto custom-scrollbar p-0 bg-[#0d0d0d] max-h-[400px]">
+        <pre class="p-4 text-xs font-mono leading-relaxed"><code class="language-javascript text-[#a8a8a8]">{{ testResult.script }}</code></pre>
+      </div>
+    </div>
+
+    <!-- 6. Logs -->
+    <div class="bg-[#1a1415]/40 border border-[#322625] rounded-2xl overflow-hidden flex flex-col">
+      <div class="p-4 border-b border-[#322625] bg-[#150f10]">
+        <h3 class="font-semibold text-white">System Logs</h3>
+      </div>
+      <div class="overflow-y-auto custom-scrollbar p-4 bg-[#0d0d0d] space-y-1.5 font-mono text-[11px] max-h-[300px]">
+        <div *ngFor="let log of testResult.logs" class="text-[#666666] border-b border-[#1a1a1a] pb-1 last:border-0">
+          <span class="text-[#ff4c00] mr-2">></span> {{ log }}
+        </div>
+      </div>
+    </div>
+
   </div>
 </div>

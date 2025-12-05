@@ -1,74 +1,173 @@
-<div class="flex flex-col p-6 animate-fade-in">
+<div class="flex flex-col p-6 animate-fade-in h-[calc(100vh-20px)] overflow-hidden">
+  
   <!-- Header -->
-  <div>
+  <div class="mb-2 pl-2 shrink-0">
     <h1 class="text-3xl font-bold bg-gradient-to-r from-[#ff4c00] to-[#ff914d] bg-clip-text text-transparent">
       New Test
     </h1>
-    <p class="text-[#d1bfbf] mt-1">
+    <p class="text-[#d1bfbf] text-base mt-1">
       Quickly generate and run automated tests for any website
     </p>
   </div>
 
-  <!-- Form / Card -->
-  <div class="mt-6 w-full max-w-4xl">
-    <div class="bg-gradient-to-br from-[#2b1d1d] via-[#231a1b] to-[#1b1313] border border-[#322625] rounded-2xl shadow-xl p-6 w-full">
-      <div class="space-y-6">
-        <!-- Website URL -->
-        <div>
-          <label for="website-url" class="block text-sm font-semibold text-[#d1bfbf] mb-2">Website URL *</label>
-          <input
-            id="website-url"
-            type="url"
-            placeholder="https://example.com"
-            [(ngModel)]="websiteUrl"
-            (blur)="websiteUrlTouched = true"
-            class="w-full px-4 py-3 bg-transparent border border-[#322625] rounded-lg focus:ring-2 focus:ring-[#ff4c00] focus:border-transparent outline-none text-white placeholder-[#a59494]"
-          />
-          <p *ngIf="websiteUrlTouched && (!websiteUrl || websiteUrl.trim() === '')" class="text-red-500 text-sm mt-1">
-            Website URL is required
-          </p>
-        </div>
-
-        <!-- Username & Password Grid -->
-        <div class="grid md:grid-cols-2 gap-4">
+  <!-- 1️⃣ INPUT FORM (Visible when NOT testing) -->
+  <div *ngIf="!isTestingInProgress" class="flex-1 flex items-center justify-center w-full">
+    <div class="w-full max-w-5xl">
+      <div class="bg-[#1a1415]/80 backdrop-blur-md border border-[#322625] rounded-3xl shadow-2xl p-8 w-full relative overflow-hidden group">
+        
+        <!-- Subtle Background Gradient Glow -->
+        <div class="absolute -top-20 -right-20 w-64 h-64 bg-[#ff4c00]/10 rounded-full blur-3xl transition-opacity duration-700 opacity-50 group-hover:opacity-70"></div>
+        
+        <div class="space-y-8 relative z-10">
+          
+          <!-- Website URL -->
           <div>
-            <label for="username" class="block text-sm font-semibold text-[#d1bfbf] mb-2">Username (Optional)</label>
-            <input
-              id="username"
-              type="text"
-              placeholder="Username"
-              [(ngModel)]="username"
-              class="w-full px-4 py-3 bg-transparent border border-[#322625] rounded-lg focus:ring-2 focus:ring-[#ff4c00] focus:border-transparent outline-none text-white placeholder-[#a59494]"
-            />
+            <label for="website-url" class="block text-sm font-bold text-[#d1bfbf] uppercase tracking-wider mb-3">Website URL <span class="text-[#ff4c00]">*</span></label>
+            <div class="relative">
+              <input
+                id="website-url"
+                type="url"
+                placeholder="https://example.com"
+                [(ngModel)]="websiteUrl"
+                (blur)="websiteUrlTouched = true"
+                class="w-full pl-5 pr-4 py-4 bg-[#120c0d] border border-[#322625] rounded-xl focus:ring-2 focus:ring-[#ff4c00] focus:border-[#ff4c00] outline-none text-white placeholder-[#554444] transition-all text-lg shadow-inner"
+                [class.border-red-500]="websiteUrlTouched && (!websiteUrl || websiteUrl.trim() === '')"
+              />
+            </div>
+            <p *ngIf="websiteUrlTouched && (!websiteUrl || websiteUrl.trim() === '')" class="text-red-500 text-sm mt-2 flex items-center gap-2">
+              <span class="w-1.5 h-1.5 rounded-full bg-red-500"></span> Website URL is required
+            </p>
           </div>
 
-          <div>
-            <label for="password" class="block text-sm font-semibold text-[#d1bfbf] mb-2">Password (Optional)</label>
-            <input
-              id="password"
-              type="password"
-              placeholder="Password"
-              [(ngModel)]="password"
-              class="w-full px-4 py-3 bg-transparent border border-[#322625] rounded-lg focus:ring-2 focus:ring-[#ff4c00] focus:border-transparent outline-none text-white placeholder-[#a59494]"
-            />
+          <!-- Username & Password Grid -->
+          <div class="grid md:grid-cols-2 gap-6">
+            <div>
+              <label for="username" class="block text-sm font-bold text-[#d1bfbf] uppercase tracking-wider mb-3">Username <span class="text-gray-600 text-xs normal-case">(Optional)</span></label>
+              <input
+                id="username"
+                type="text"
+                placeholder="user@example.com"
+                [(ngModel)]="username"
+                class="w-full px-5 py-4 bg-[#120c0d] border border-[#322625] rounded-xl focus:ring-2 focus:ring-[#ff4c00] focus:border-[#ff4c00] outline-none text-white placeholder-[#554444] transition-all shadow-inner"
+              />
+            </div>
+
+            <div>
+              <label for="password" class="block text-sm font-bold text-[#d1bfbf] uppercase tracking-wider mb-3">Password <span class="text-gray-600 text-xs normal-case">(Optional)</span></label>
+              <input
+                id="password"
+                type="password"
+                placeholder="••••••••"
+                [(ngModel)]="password"
+                class="w-full px-5 py-4 bg-[#120c0d] border border-[#322625] rounded-xl focus:ring-2 focus:ring-[#ff4c00] focus:border-[#ff4c00] outline-none text-white placeholder-[#554444] transition-all shadow-inner"
+              />
+            </div>
           </div>
+
+          <!-- Error Message -->
+          <div *ngIf="errorMessage" class="p-4 bg-red-900/20 border border-red-900/50 rounded-xl text-red-400 text-sm flex items-center gap-3">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 shrink-0" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clip-rule="evenodd" /></svg>
+            {{ errorMessage }}
+          </div>
+
+          <!-- Start Test Button -->
+          <button
+            (click)="handleTest()"
+            class="w-full py-4 bg-gradient-to-r from-[#ff4c00] to-[#ff2a00] text-white rounded-xl hover:shadow-lg transition-all duration-300 font-bold text-lg flex items-center justify-center gap-3 active:scale-[0.99] group/btn"
+          >
+            <span>Start AI Analysis</span>
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 transition-transform duration-300 group-hover/btn:translate-x-1" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7l5 5m0 0l-5 5m5-5H6" /></svg>
+          </button>
         </div>
-
-        <!-- Start Test Button -->
-        <button
-          (click)="handleTest()"
-          [disabled]="isTestingInProgress"
-          class="w-full px-8 py-4 bg-gradient-to-r from-[#ff4c00] to-[#79411f] text-white rounded-lg hover:from-[#ff6633] hover:to-[#57301d] transition-all shadow-lg font-semibold text-lg disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center space-x-2"
-        >
-          <ng-container *ngIf="isTestingInProgress; else startTest">
-            <span>Testing...</span>
-          </ng-container>
-
-          <ng-template #startTest>
-            <span>Start Test</span>
-          </ng-template>
-        </button>
       </div>
     </div>
   </div>
+
+  <!-- 2️⃣ VERTICAL STEPPER (Compacted to Fit Screen) -->
+  <div *ngIf="isTestingInProgress" class="flex-1 w-full max-w-3xl mx-auto flex flex-col justify-center animate-fade-in overflow-hidden">
+    
+    <div class="bg-[#1a1415]/90 backdrop-blur-xl border border-[#322625] rounded-3xl shadow-2xl p-6 w-full relative flex flex-col max-h-full">
+      
+      <!-- Ambient Glow (Subtler) -->
+      <div class="absolute top-0 left-1/2 -translate-x-1/2 w-full h-1 bg-gradient-to-r from-transparent via-[#ff4c00] to-transparent opacity-30"></div>
+
+      <div class="text-center mb-4 shrink-0">
+        <h2 class="text-2xl font-bold text-white mb-1">
+          Running Diagnostics
+        </h2>
+        <p class="text-[#887777] text-sm">Please keep this window open.</p>
+      </div>
+
+      <!-- 
+        ✅ FIXED: Changed 'justify-center' to 'justify-start' 
+        ✅ ADDED: 'pt-4' to prevent the first step from touching the top edge
+      -->
+      <div class="relative pl-2 md:pl-12 flex-1 flex flex-col justify-start pt-4 overflow-y-auto custom-scrollbar">
+        
+        <div *ngFor="let step of steps; let i = index" class="relative pb-6 last:pb-0 group">
+          
+          <!-- 🟢 CONNECTING LINE -->
+          <div *ngIf="i !== steps.length - 1" 
+               class="absolute left-[19px] top-10 h-full w-[2px] -z-10 transition-all duration-700 ease-in-out"
+               [ngClass]="i < currentStepIndex ? 'bg-[#ff4c00]' : 'bg-[#322625]'">
+          </div>
+          
+          <div class="flex items-start gap-5">
+            
+            <!-- 🔵 CIRCLE INDICATOR (No Glow/Shadow) -->
+            <div class="w-10 h-10 rounded-full flex items-center justify-center border-2 transition-all duration-500 shrink-0 relative z-20 bg-[#120c0d]"
+                 [ngClass]="{
+                   'border-[#ff4c00] bg-[#ff4c00] scale-100': i < currentStepIndex,
+                   'border-[#ff4c00] scale-110': i === currentStepIndex,
+                   'border-[#322625] text-gray-700': i > currentStepIndex
+                 }">
+               
+               <!-- Icon: Checkmark -->
+               <svg *ngIf="i < currentStepIndex" xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-white animate-scale-in" viewBox="0 0 20 20" fill="currentColor">
+                 <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd" />
+               </svg>
+
+               <!-- Icon: Spinner/Dot -->
+               <div *ngIf="i === currentStepIndex" class="relative flex items-center justify-center">
+                 <span class="absolute inline-flex h-full w-full rounded-full bg-[#ff4c00] opacity-75 animate-ping"></span>
+                 <div class="w-3 h-3 rounded-full bg-[#ff4c00]"></div>
+               </div>
+
+               <!-- Icon: Number -->
+               <span *ngIf="i > currentStepIndex" class="text-xs font-mono font-bold text-[#443333]">{{ i + 1 }}</span>
+            </div>
+
+            <!-- 🟡 TEXT CONTENT -->
+            <div class="flex flex-col pt-1.5 transition-all duration-300" 
+                 [class.translate-x-1]="i === currentStepIndex">
+              
+              <span class="text-base font-bold transition-colors duration-300 leading-none"
+                    [ngClass]="i <= currentStepIndex ? 'text-white' : 'text-[#443333]'">
+                {{ step.label }}
+              </span>
+              
+              <!-- Live Status Message -->
+              <div *ngIf="i === currentStepIndex" class="overflow-hidden transition-all duration-500 max-h-20 opacity-100 mt-1">
+                 <p class="text-xs text-[#ff4c00] font-mono animate-pulse flex items-center gap-2">
+                   <span class="w-1.5 h-1.5 rounded-full bg-[#ff4c00]"></span>
+                   {{ statusMessage || 'Processing...' }}
+                 </p>
+              </div>
+
+              <!-- Faded description -->
+              <p *ngIf="i !== currentStepIndex" class="text-xs mt-0.5 transition-colors duration-300"
+                 [ngClass]="i < currentStepIndex ? 'text-gray-500' : 'text-[#2a2020]'">
+                 {{ i < currentStepIndex ? 'Done' : 'Pending' }}
+              </p>
+
+            </div>
+
+          </div>
+        </div>
+
+      </div>
+
+    </div>
+  </div>
+
 </div>

@@ -14,12 +14,27 @@ export class Tests {
   websiteUrl: string = '';
   username: string = '';
   password: string = '';
+  
   isTestingInProgress: boolean = false;
   websiteUrlTouched: boolean = false;
-  testResult?: TestResult;
   errorMessage: string = '';
+  statusMessage: string = '';
 
-  constructor(private testService: TestService, private router: Router) {} // ✅ Inject Router
+  // ✅ NEW: Define the specific steps for the Progress Bar
+  // The 'keyword' helps us match the backend message to the UI step
+  steps = [
+    { id: 0, label: 'Initialize Environment', keyword: 'Initializing' },
+    { id: 1, label: 'Analyze & Generate Script', keyword: 'Generating' },
+    { id: 2, label: 'Launch Cloud Browser', keyword: 'Launching' },
+    { id: 3, label: 'Execute Interactions', keyword: 'Executing' },
+    { id: 4, label: 'Process Results', keyword: 'Processing' },
+    { id: 5, label: 'Finalize Report', keyword: 'Saving' }
+  ];
+  
+  // Tracks the active step index (0 to 5)
+  currentStepIndex = 0;
+
+  constructor(private testService: TestService, private router: Router) {}
 
   handleTest() {
     this.websiteUrlTouched = true;
@@ -31,15 +46,20 @@ export class Tests {
 
     this.errorMessage = '';
     this.isTestingInProgress = true;
+    this.statusMessage = 'Initializing test environment...';
+    this.currentStepIndex = 0; // Reset step
 
-    this.testService.generateTest(this.websiteUrl).subscribe({
-      next: (result) => {
-        this.testResult = result;
-        console.log('✅ Test Result Received:', result);
-        this.isTestingInProgress = false;
+    const requestData = {
+      url: this.websiteUrl,
+      credentials: {
+        username: this.username,
+        password: this.password
+      }
+    };
 
-        // ✅ Redirect to the result page using the generated ID
-        this.router.navigate(['/dashboard/result', result.id]);
+    this.testService.startTest(requestData).subscribe({
+      next: (testId) => {
+        this.listenToProgress(testId);
       },
       error: (err) => {
         console.error('❌ Error starting test:', err);
@@ -47,5 +67,39 @@ export class Tests {
         this.isTestingInProgress = false;
       },
     });
+  }
+
+  listenToProgress(testId: string): void {
+    this.testService.getTestStream(testId).subscribe({
+      next: (event: any) => {
+        if (event.type === 'PROGRESS') {
+          this.statusMessage = event.message || 'Processing...';
+          
+          // ✅ UPDATE STEP: Check which keyword matches the incoming message
+          this.updateActiveStep(this.statusMessage);
+
+        } else if (event.type === 'COMPLETED' && event.data) {
+          console.log('✅ Test Result Received:', event.data);
+          this.currentStepIndex = this.steps.length; // Mark all done
+          this.router.navigate(['/dashboard/result', event.data.id]);
+        }
+      },
+      error: (err: any) => {
+        console.error('Stream Error:', err);
+        this.errorMessage = 'Connection lost during test execution.';
+        this.isTestingInProgress = false;
+      }
+    });
+  }
+
+  // Helper to move the progress bar forward
+  private updateActiveStep(message: string) {
+    const foundIndex = this.steps.findIndex(step => message.includes(step.keyword));
+    if (foundIndex !== -1) {
+      // Only move forward, never backward
+      if (foundIndex > this.currentStepIndex) {
+        this.currentStepIndex = foundIndex;
+      }
+    }
   }
 }

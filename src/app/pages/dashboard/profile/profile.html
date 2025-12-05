@@ -1,4 +1,5 @@
 <div class="flex flex-col p-6 animate-fade-in text-[#d1bfbf]">
+  
   <!-- Header -->
   <div>
     <h1
@@ -25,18 +26,36 @@
     </div>
 
     <div class="pb-6 flex items-center gap-6 border-b border-[#322625]">
-      <!-- Avatar Display -->
-      <div
-        class="h-24 w-24 rounded-full flex items-center justify-center text-2xl font-bold bg-gradient-to-r from-[#ff4c00] to-[#ff914d] text-white overflow-hidden border-2 border-[#322625]"
-      >
-        <!-- Logic: Agar Avatar hai to wo dikhao, nahi to Initials -->
-        <img *ngIf="userData.avatar" [src]="userData.avatar" alt="Profile" class="w-full h-full object-cover">
-        <span *ngIf="!userData.avatar">{{ getInitials(userData.name) }}</span>
+      
+      <!-- ✅ AVATAR SECTION WITH SKELETON -->
+      <div class="relative h-24 w-24 rounded-full overflow-hidden border-2 border-[#322625] bg-[#201617]">
+        
+        <!-- 1. Skeleton (Visible if Data Loading OR Image Loading) -->
+        <div *ngIf="isLoadingData || (userData.avatar && isImageLoading)" 
+             class="absolute inset-0 bg-[#201617] flex items-center justify-center z-20">
+            <div class="w-full h-full bg-[#322625] animate-pulse"></div>
+        </div>
+
+        <!-- 2. Photo (Always present but hidden until loaded) -->
+        <img *ngIf="userData.avatar" 
+             [src]="userData.avatar" 
+             (load)="onImageLoad()"
+             alt="Profile" 
+             class="absolute inset-0 w-full h-full object-cover transition-opacity duration-300"
+             [class.opacity-0]="isImageLoading"
+             [class.opacity-100]="!isImageLoading">
+
+        <!-- 3. Initials (Only if NO avatar) -->
+        <div *ngIf="!userData.avatar && !isLoadingData" 
+             class="absolute inset-0 w-full h-full bg-gradient-to-br from-[#ff4c00] to-[#ff914d] flex items-center justify-center text-white text-2xl font-bold">
+            {{ getInitials(userData.name) }}
+        </div>
+
       </div>
 
       <div class="space-y-2">
         
-        <!-- Hidden Input for File Selection -->
+        <!-- Hidden Input -->
         <input 
           #fileInput
           type="file" 
@@ -54,14 +73,18 @@
         >
           <i class="fa fa-upload"></i> Upload Photo
         </button>
-        <p class="text-xs text-gray-400">JPG, PNG or GIF. Max size 2MB.</p>
+        <p class="text-xs text-gray-400">JPG, PNG or GIF. Max size 5MB.</p>
       </div>
     </div>
 
+    <!-- Form Inputs (Skeleton optional here, but added for consistency) -->
     <div class="grid gap-4">
       <div>
         <label class="text-sm font-semibold text-[#d1bfbf]">Full Name</label>
-        <input
+        <!-- Skeleton if needed -->
+        <div *ngIf="isLoadingData" class="h-10 w-full bg-[#322625] rounded-md animate-pulse mb-1"></div>
+        
+        <input *ngIf="!isLoadingData"
           class="border border-[#322625] rounded-md px-3 py-2 w-full bg-transparent focus:ring-2 focus:ring-[#ff4c00] focus:border-transparent outline-none text-white"
           [(ngModel)]="userData.name"
         />
@@ -69,7 +92,8 @@
 
       <div>
         <label class="text-sm font-semibold text-[#d1bfbf]">Email</label>
-        <input
+        <div *ngIf="isLoadingData" class="h-10 w-full bg-[#322625] rounded-md animate-pulse mb-1"></div>
+        <input *ngIf="!isLoadingData"
           type="email"
           class="border border-[#322625] rounded-md px-3 py-2 w-full bg-transparent focus:ring-2 focus:ring-[#ff4c00] focus:border-transparent outline-none text-white"
           [(ngModel)]="userData.email"
@@ -78,7 +102,8 @@
 
       <div>
         <label class="text-sm font-semibold text-[#d1bfbf]">Role</label>
-        <input
+        <div *ngIf="isLoadingData" class="h-10 w-full bg-[#322625] rounded-md animate-pulse mb-1"></div>
+        <input *ngIf="!isLoadingData"
           class="border border-[#322625] rounded-md px-3 py-2 w-full bg-transparent focus:ring-2 focus:ring-[#ff4c00] focus:border-transparent outline-none text-white"
           [(ngModel)]="userData.role"
         />

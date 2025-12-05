@@ -14,8 +14,9 @@ import { TestTrendsChartComponent } from './components/test-trends-chart/test-tr
 
 import { DashboardService } from '../../../core/services/Dahboard.service';
 import { DashboardWebSocketService } from '../../../core/services/dashboard-websocket.service';
-import { AuthService } from '../../../core/services/auth.service'; // ✅ Added AuthService
-import { Subscription, forkJoin } from 'rxjs'; 
+import { AuthService } from '../../../core/services/auth.service';
+import { Subscription, forkJoin, of, timer } from 'rxjs'; 
+import { catchError, filter, take, retry, delay, switchMap } from 'rxjs/operators'; 
 
 @Component({
   selector: 'app-dashboard',
@@ -31,11 +32,7 @@ import { Subscription, forkJoin } from 'rxjs';
 })
 export class DashboardComponent implements OnInit, OnDestroy {
 
-  // -----------------------
-  // UI State
-  // -----------------------
-  userName: string = 'User'; // ✅ Added userName property
-  
+  userName: string = 'User';
   statCards: any[] = [];
   trends: { day: string; count: number }[] = [];
   distribution: { status: string; count: number }[] = [];
@@ -43,7 +40,10 @@ export class DashboardComponent implements OnInit, OnDestroy {
   private currentStats: any = {};
   private comparisonData: Record<string, string> = {}; 
 
-  // Loading / error / no-data
+  // ✅ ADDED: Missing loading properties
+  loadingUser = true;      // For the "Hello User" header
+  loadingHistory = true;   // For the Table
+  
   loadingStats = false;
   loadingTrends = false;
   loadingDistribution = false;
@@ -58,252 +58,201 @@ export class DashboardComponent implements OnInit, OnDestroy {
 
   private subs: Subscription[] = [];
 
-  // -----------------------
-  // Chart References
-  // -----------------------
   @ViewChild(TestTrendsChartComponent) trendsChart!: TestTrendsChartComponent;
   @ViewChild(TestDistributionChart) distributionChart!: TestDistributionChart;
 
   constructor(
     private dashboardService: DashboardService,
     private ws: DashboardWebSocketService,
-    private authService: AuthService, // ✅ Injected AuthService
+    private authService: AuthService,
     private cdr: ChangeDetectorRef
   ) {}
 
   ngOnInit(): void {
-    // ✅ Fetch User Name
-    this.authService.user$.subscribe(user => {
+    this.loadingUser = true; // Start loading user
+    this.loadingStats = true;
+    this.loadingTrends = true;
+    this.loadingDistribution = true;
+    this.loadingHistory = true; // Start loading table
+
+    // 🛑 STEP 1: Wait for User + Add Small Delay
+    this.authService.user$.pipe(
+      filter(user => !!user),
+      take(1),
+      delay(500) 
+    ).subscribe(async user => {
       if (user) {
         const fullName = user.displayName || user.email?.split('@')[0] || 'User';
-        this.userName = fullName.split(' ')[0]; // Sirf First Name (e.g. 'Nikhil')
+        this.userName = fullName.split(' ')[0];
+        
+        // ✅ STOP LOADING USER (Skeleton disappears)
+        this.loadingUser = false; 
+        this.cdr.detectChanges();
+
+        try {
+            await user.getIdToken(true); 
+            console.log("✅ Token Fresh & Ready. Fetching Data...");
+            this.loadInitialData();
+            this.listenWebSocket();
+        } catch (e) {
+            console.error("Token Refresh Failed", e);
+            this.loadingUser = false; // Ensure loading stops even on error
+        }
       }
     });
-
-    this.loadInitialData();
-    this.listenWebSocket();
   }
 
   ngOnDestroy(): void {
     this.subs.forEach(sub => sub.unsubscribe());
   }
 
-  // -----------------------
-  // WebSocket Live Updates
-  // -----------------------
   private listenWebSocket(): void {
     this.subs.push(
       this.ws.stats$.subscribe(stats => {
-        if (stats) {
-          this.currentStats = stats; 
-          this.renderStatsCards();    
-          this.errorStats = null;
-        }
+        if (stats) { this.currentStats = stats; this.renderStatsCards(); }
       })
     );
-    
     this.subs.push(
-      this.ws.comparison$.subscribe((comps: Record<string, string>) => {
-        if (comps) {
-          this.comparisonData = comps; 
-          this.renderStatsCards();     
-        }
+      this.ws.comparison$.subscribe(comps => {
+        if (comps) { this.comparisonData = comps; this.renderStatsCards(); }
       })
     );
-
     this.subs.push(
       this.ws.trends$.subscribe(data => {
         if (data && data.length > 0) {
           this.trends = [...data];
           if (this.trendsChart) this.trendsChart.trends = [...data];
-          this.errorTrends = null;
-          this.noDataTrends = false;
-          this.cdr.markForCheck();
+          this.cdr.detectChanges();
         }
       })
     );
-
     this.subs.push(
       this.ws.distribution$.subscribe(data => {
         if (data && data.length > 0) {
           this.distribution = [...data];
           if (this.distributionChart) this.distributionChart.distribution = [...data];
-          this.errorDistribution = null;
-          this.noDataDistribution = false;
-          this.cdr.markForCheck();
+          this.cdr.detectChanges();
         }
       })
     );
   }
 
   // -----------------------
-  // REST API Load (Initial Data)
+  // REST API Load (Robust Retry Logic)
   // -----------------------
   private loadInitialData(): void {
-    this.loadingStats = true;
     this.errorStats = null;
-    this.statCards = [];
+    this.errorTrends = null;
+    this.errorDistribution = null;
+
+    console.log("🚀 Starting Data Fetch with Auto-Retry...");
 
     this.subs.push(
       forkJoin({
-        stats: this.dashboardService.getStats(),
-        comparison: this.dashboardService.getComparisonData() 
+        stats: this.dashboardService.getStats().pipe(
+            retry({ count: 3, delay: 1000 }), 
+            catchError(err => { console.error('Stats Failed', err); return of({}); })
+        ),
+        comparison: this.dashboardService.getComparisonData().pipe(
+            retry({ count: 3, delay: 1000 }),
+            catchError(err => { console.error('Comp Failed', err); return of({}); })
+        ),
+        trends: this.dashboardService.getTrends().pipe(
+            retry({ count: 3, delay: 1000 }),
+            catchError(err => { console.error('Trends Failed', err); return of([]); })
+        ),
+        distribution: this.dashboardService.getDistribution().pipe(
+            retry({ count: 3, delay: 1000 }),
+            catchError(err => { console.error('Dist Failed', err); return of([]); })
+        )
       }).subscribe({
-        next: ({ stats, comparison }) => {
-          this.loadingStats = false;
-          
-          this.currentStats = stats;
-          this.comparisonData = comparison;
-          
-          if (!stats || Object.keys(stats).length === 0) {
-            this.errorStats = 'No stats available';
-          } else {
-            this.errorStats = null;
-            this.renderStatsCards(); 
-          }
+        next: (results) => {
+          console.log("✅ Data Loaded Successfully:", results);
 
+          // 1. Stats
+          this.currentStats = results.stats;
+          this.comparisonData = results.comparison;
+          this.renderStatsCards();
+          this.loadingStats = false;
+
+          // 2. Trends
+          if (!results.trends || results.trends.length === 0) {
+            this.noDataTrends = true;
+            this.trends = [];
+          } else {
+            this.noDataTrends = false;
+            this.trends = results.trends.map((t: any) => ({
+                day: t.day || t.date || t.label || '', 
+                count: t.count || t.value || 0
+            }));
+          }
+          this.loadingTrends = false;
+
+          // 3. Distribution
+          if (!results.distribution || results.distribution.length === 0) {
+            this.noDataDistribution = true;
+            this.distribution = [];
+          } else {
+            this.noDataDistribution = false;
+            this.distribution = results.distribution.map((d: any) => ({
+                status: d.status || d.name || 'Unknown',
+                count: d.count || d.value || 0
+            }));
+          }
+          this.loadingDistribution = false;
+
+          // 4. History (Table)
+          // Since we don't have a separate API call here for history, 
+          // we assume the table component manages itself or we stop loading here.
+          this.loadingHistory = false; 
+
+          // 5. Force UI Render
           this.cdr.detectChanges();
+
+          // 6. Final Push for Charts
+          setTimeout(() => {
+             if (this.trendsChart) this.trendsChart.trends = [...this.trends];
+             if (this.distributionChart) this.distributionChart.distribution = [...this.distribution];
+             this.cdr.detectChanges();
+          }, 100);
         },
         error: (err) => {
-          console.error('Initial Load API Error:', err);
+          console.error("❌ Final Load Error:", err);
           this.loadingStats = false;
-          this.errorStats = 'Failed to load initial dashboard stats.';
-          this.statCards = [];
+          this.loadingTrends = false;
+          this.loadingDistribution = false;
+          this.loadingHistory = false; // Stop loading on error
           this.cdr.detectChanges();
-        },
+        }
       })
     );
-    
-    this.loadTrends();
-    this.loadDistribution();
   }
-  
-  private loadTrends(): void {
-    this.loadingTrends = true;
-    this.errorTrends = null;
-    this.noDataTrends = false;
-
-    this.dashboardService.getTrends().subscribe({
-      next: res => {
-        if (!res || res.length === 0) {
-          this.noDataTrends = true;
-        } else {
-          this.trends = [...res];
-          if (this.trendsChart) this.trendsChart.trends = [...res];
-        }
-
-        this.loadingTrends = false;
-        this.cdr.detectChanges();
-      },
-      error: err => {
-        console.error('Trends API Error:', err);
-        this.errorTrends = 'Failed to load trends.';
-        this.loadingTrends = false;
-        this.cdr.detectChanges();
-      },
-    });
-  }
-
-  loadDistribution(): void {
-    this.loadingDistribution = true;
-    this.errorDistribution = null;
-    this.noDataDistribution = false;
-
-    this.dashboardService.getDistribution().subscribe({
-      next: res => {
-        if (!res || res.length === 0) {
-          this.noDataDistribution = true;
-        } else {
-          this.distribution = [...res];
-          if (this.distributionChart) this.distributionChart.distribution = [...res];
-        }
-
-        this.loadingDistribution = false;
-        this.cdr.detectChanges();
-      },
-      error: err => {
-        console.error('Distribution API Error:', err);
-        this.errorDistribution = 'Failed to load distribution.';
-        this.loadingDistribution = false;
-        this.cdr.detectChanges();
-      },
-    });
-  }
-
-  // -----------------------
-  // Stats UI Update (Trend Helpers)
-  // -----------------------
 
   private isTrendUp(trendValue: string | undefined): boolean {
       return trendValue ? trendValue.startsWith('+') || trendValue.includes('faster') : false;
   }
-
   private isTrendDown(trendValue: string | undefined): boolean {
       return trendValue ? trendValue.startsWith('-') || trendValue.includes('slower') || trendValue.includes('worse') : false;
   }
-
-  // -----------------------
-  // Stats UI Update (Consolidated Renderer)
-  // -----------------------
   private renderStatsCards(): void {
     const stats = this.currentStats;
     const comps = this.comparisonData; 
-
-    if (!stats || Object.keys(stats).length === 0) {
-        this.statCards = [];
-        return;
-    }
+    if (!stats || Object.keys(stats).length === 0) { this.statCards = []; return; }
     
     const successTrend = comps['successRate'] || 'N/A';
     const totalTestsTrend = comps['totalTests'] || 'N/A';
     const avgTimeTrend = comps['averageTime'] || 'N/A';
-    
     const rawSuccessRate = stats.successRate;
-    let successRateValue = '';
-    
-    if (rawSuccessRate !== null && rawSuccessRate !== undefined) {
-        const cleanRateString = String(rawSuccessRate).replace(/[^0-9.]/g, '');
-        successRateValue = Number(cleanRateString).toFixed(1) + '%';
-    } else {
-        successRateValue = 'N/A';
-    }
+    let successRateValue = rawSuccessRate !== null && rawSuccessRate !== undefined 
+        ? Number(String(rawSuccessRate).replace(/[^0-9.]/g, '')).toFixed(1) + '%' 
+        : 'N/A';
 
-    const cards = [
-        { 
-            title: 'Total Tests', 
-            value: String(stats.totalTests), 
-            icon: FlaskConical, 
-            trend: totalTestsTrend, 
-            trendUp: this.isTrendUp(totalTestsTrend),
-            trendDown: this.isTrendDown(totalTestsTrend)
-        },
-        { 
-            title: 'Avg Test Time', 
-            value: stats.averageTime?.toFixed(1) + 's', 
-            icon: Timer, 
-            trend: avgTimeTrend, 
-            trendUp: this.isTrendUp(avgTimeTrend),
-            trendDown: this.isTrendDown(avgTimeTrend)
-        },
-        { 
-            title: 'Success Rate', 
-            value: successRateValue, 
-            icon: CheckCircle2, 
-            trend: successTrend, 
-            trendUp: this.isTrendUp(successTrend),
-            trendDown: this.isTrendDown(successTrend)
-        },
-        { 
-            title: 'Active Tests', 
-            value: stats.activeTests, 
-            icon: TrendingUp, 
-            trend: 'Currently running', 
-            trendUp: true, 
-            trendDown: false
-        },
+    this.statCards = [
+        { title: 'Total Tests', value: String(stats.totalTests), icon: FlaskConical, trend: totalTestsTrend, trendUp: this.isTrendUp(totalTestsTrend), trendDown: this.isTrendDown(totalTestsTrend) },
+        { title: 'Avg Test Time', value: stats.averageTime?.toFixed(1) + 's', icon: Timer, trend: avgTimeTrend, trendUp: this.isTrendUp(avgTimeTrend), trendDown: this.isTrendDown(avgTimeTrend) },
+        { title: 'Success Rate', value: successRateValue, icon: CheckCircle2, trend: successTrend, trendUp: this.isTrendUp(successTrend), trendDown: this.isTrendDown(successTrend) },
+        { title: 'Active Tests', value: stats.activeTests, icon: TrendingUp, trend: 'Currently running', trendUp: true, trendDown: false },
     ];
-    
-    this.statCards = [...cards];
     this.cdr.detectChanges(); 
   }
 }

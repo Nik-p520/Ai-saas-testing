@@ -46,7 +46,11 @@ export class SignupComponent {
     this.authService.signup(email, password, name).subscribe({
       next: () => {
         this.isLoading = false;
-        alert("Account ban gaya! Dashboard pe ja raha hoon.");
+        
+        // ✅ IMPORTANT MESSAGE FOR USER
+        alert("Account created successfully! \n\nIMPORTANT: We have sent a verification link to your email.\n\nPlease CLICK that link before logging in again to secure your account.");
+        
+        // Navigate to login page
         this.router.navigate(['/login']);
       },
       error: (err) => {
