@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, HostListener } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ActivatedRoute } from '@angular/router';
 import { finalize } from 'rxjs/operators';
@@ -12,12 +12,20 @@ import { TestService, TestResult } from '../../../core/services/crud.service';
 })
 export class ResultPageComponent implements OnInit {
   testResult: TestResult | null = null;
-  loading = false;
+  
+  // ✅ STATE SEPARATION
+  loading = false; // Controls the Stepper (Re-run)
+  fetching = false; // Controls Simple Spinner (History Load)
+  
   errorMessage = '';
   statusMessage = ''; 
   copied = false;
 
-  // Steps for Progress Bar
+  // Modal State
+  selectedImage: any = null;
+  isZoomed = false;
+  zoomOrigin = 'center center';
+
   steps = [
     { id: 0, label: 'Initialize Environment', keyword: 'Initializing' },
     { id: 1, label: 'Analyze & Generate Script', keyword: 'Generating' },
@@ -35,27 +43,60 @@ export class ResultPageComponent implements OnInit {
 
   ngOnInit(): void {
     const id = this.route.snapshot.paramMap.get('id');
-    if (id) {
-      this.loadResult(id);
-    } else {
-      this.errorMessage = 'Invalid Test ID. Please try again.';
-    }
+    if (id) this.loadResult(id);
+    else this.errorMessage = 'Invalid Test ID.';
   }
 
   loadResult(id: string): void {
-    this.loading = true;
-    this.testService
-      .getTestById(id)
-      .pipe(finalize(() => {
-        if (!this.statusMessage) this.loading = false; 
+    // ✅ FIX: Use 'fetching' instead of 'loading'
+    this.fetching = true; 
+    
+    this.testService.getTestById(id)
+      .pipe(finalize(() => { 
+        this.fetching = false; 
       }))
       .subscribe({
         next: (result) => (this.testResult = result),
-        error: (err) => {
-          console.error('❌ Error fetching test result:', err);
-          this.errorMessage = 'Failed to load test result.';
+        error: (err) => { 
+          console.error(err); 
+          this.errorMessage = 'Failed to load test result.'; 
         },
       });
+  }
+
+  // ... (Keep Toggle/Zoom Logic same as before) ...
+  toggleZoom(event: MouseEvent) {
+    event.stopPropagation();
+    if (this.isZoomed) { this.isZoomed = false; this.zoomOrigin = 'center center'; } 
+    else { this.updateZoomPosition(event); this.isZoomed = true; }
+  }
+
+  onMouseMove(event: MouseEvent) { if (this.isZoomed) this.updateZoomPosition(event); }
+
+  private updateZoomPosition(event: MouseEvent) {
+    const element = event.target as HTMLElement;
+    const rect = element.getBoundingClientRect();
+    const x = ((event.clientX - rect.left) / rect.width) * 100;
+    const y = ((event.clientY - rect.top) / rect.height) * 100;
+    this.zoomOrigin = `${x}% ${y}%`;
+  }
+
+  openImageModal(shot: any): void {
+    this.selectedImage = shot;
+    this.isZoomed = false;
+    this.zoomOrigin = 'center center';
+    document.body.style.overflow = 'hidden'; 
+  }
+
+  closeImageModal(): void {
+    this.selectedImage = null;
+    this.isZoomed = false;
+    document.body.style.overflow = ''; 
+  }
+
+  @HostListener('document:keydown.escape', ['$event'])
+  onKeydownHandler(event: any): void {
+    if (this.selectedImage) this.closeImageModal();
   }
 
   copyScript(): void {
@@ -66,16 +107,15 @@ export class ResultPageComponent implements OnInit {
         this.copied = true;
         setTimeout(() => (this.copied = false), 2000);
       });
-    } catch (err) {
-      console.error('Failed to copy', err);
-    }
+    } catch (err) { console.error(err); }
   }
 
   handleRerun(): void {
     const url = this.testResult?.websiteUrl;
     if (!url) return;
 
-    this.loading = true;
+    // ✅ FIX: Only use 'loading' for Re-runs
+    this.loading = true; 
     this.errorMessage = '';
     this.statusMessage = 'Initializing Re-run...';
     this.currentStepIndex = 0; 
@@ -95,31 +135,24 @@ export class ResultPageComponent implements OnInit {
             }
           },
           error: (err) => {
-            console.error('❌ Stream error:', err);
             this.errorMessage = 'Re-run failed: ' + err;
             this.loading = false;
           }
         });
       },
       error: (err) => {
-        console.error('❌ Error starting re-run:', err);
         this.errorMessage = 'Failed to trigger re-run.';
         this.loading = false;
       }
     });
   }
 
-  /** ✅ UPDATED: Trigger Native Print Dialog (Save as PDF) */
-  handleDownload(): void {
-    window.print();
-  }
+  handleDownload(): void { window.print(); }
 
   private updateActiveStep(message: string) {
     const foundIndex = this.steps.findIndex(step => message.includes(step.keyword));
-    if (foundIndex !== -1) {
-      if (foundIndex > this.currentStepIndex) {
-        this.currentStepIndex = foundIndex;
-      }
+    if (foundIndex !== -1 && foundIndex > this.currentStepIndex) {
+      this.currentStepIndex = foundIndex;
     }
   }
 }
