@@ -282,7 +282,7 @@
   <div *ngIf="!loading && !fetching && testResult" class="max-w-6xl mx-auto space-y-8">
     
     <div class="bg-[#1a1415]/60 backdrop-blur-md border border-[#322625] rounded-2xl p-6 relative overflow-hidden">
-      <div class="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-[#ff4c00] to-transparent opacity-50"></div>
+      <div class="absolute top-0 left-1/2 -translate-x-1/2 w-full h-1 bg-gradient-to-r from-transparent via-[#ff4c00] to-transparent opacity-50"></div>
       
       <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-6">
         <div>
@@ -370,7 +370,8 @@
       <div class="p-4 border-b border-[#322625] flex justify-between items-center bg-[#150f10]">
         <h3 class="font-semibold text-white flex items-center gap-2">
           <span class="w-2 h-2 rounded-full bg-yellow-500"></span>
-          AI Recommendations
+          AI Recommendations 
+          <span class="text-[#554444] font-normal text-sm">({{ testResult.recommendations.length || 0 }})</span>
         </h3>
       </div>
       <div class="overflow-y-auto custom-scrollbar max-h-[350px] p-4 space-y-3">
@@ -389,8 +390,12 @@
     </div>
 
     <div class="bg-[#1a1415]/40 border border-[#322625] rounded-2xl overflow-hidden">
-      <div class="p-4 border-b border-[#322625] bg-[#150f10]">
-        <h3 class="font-semibold text-white">Visual Evidence (Click to enlarge)</h3>
+      <div class="p-4 border-b border-[#322625] flex justify-between items-center bg-[#150f10]">
+        <h3 class="font-semibold text-white flex items-center gap-2">
+          <span class="w-2 h-2 rounded-full bg-blue-500"></span>
+          Visual Evidence 
+          <span class="text-[#554444] font-normal text-sm">({{ testResult.screenshots.length || 0 }})</span>
+        </h3>
       </div>
       <div class="p-4 grid grid-cols-2 md:grid-cols-4 gap-4">
         
@@ -420,9 +425,90 @@
       </div>
     </div>
 
+    <!-- Health Meter -->
+
+    <div #scoreMeter class="bg-[#1a1415]/40 border border-[#322625] rounded-2xl overflow-hidden flex flex-col relative group">
+      
+      <div class="p-4 border-b border-[#322625] bg-[#150f10] flex justify-between items-center relative z-20">
+        <h3 class="font-semibold text-white flex items-center gap-2">
+          <span class="w-2 h-2 rounded-full bg-cyan-500"></span>
+          Overall Health Score
+        </h3>
+        
+        <span class="text-xl font-black italic tracking-tighter"
+              [ngClass]="{
+                'text-green-400 border-purple-500/20': (testResult.healthScore || 0) >= 90,
+                'text-green-400 border-green-500/20': (testResult.healthScore || 0) >= 80 && (testResult.healthScore || 0) < 90,
+                'text-yellow-400 border-yellow-500/20': (testResult.healthScore || 0) >= 50 && (testResult.healthScore || 0) < 80,
+                'text-red-400 border-red-500/20': (testResult.healthScore || 0) < 50
+              }">
+           {{ (testResult.healthScore || 0) >= 90 ? 'A+' : (testResult.healthScore || 0) >= 80 ? 'A' : (testResult.healthScore || 0) >= 60 ? 'B' : (testResult.healthScore || 0) >= 40 ? 'C' : 'F' }}
+        </span>
+      </div>
+
+      <div class="p-6 flex flex-col md:flex-row items-center justify-between gap-8 relative">
+         
+         <div class="flex-1 relative z-10 text-center md:text-left">
+            <div class="mb-4">
+               <span class="text-xs font-bold uppercase tracking-widest px-3 py-1.5 rounded-md border bg-[#0d0d0d]"
+                     [ngClass]="{
+                       'text-green-400 border-purple-500/20': (testResult.healthScore || 0) >= 90,
+                       'text-green-400 border-green-500/20': (testResult.healthScore || 0) >= 80 && (testResult.healthScore || 0) < 90,
+                       'text-yellow-400 border-yellow-500/20': (testResult.healthScore || 0) >= 50 && (testResult.healthScore || 0) < 80,
+                       'text-red-400 border-red-500/20': (testResult.healthScore || 0) < 50
+                     }">
+                  {{ (testResult.healthScore || 0) >= 90 ? 'Excellent Condition' : (testResult.healthScore || 0) >= 80 ? 'Good' : (testResult.healthScore || 0) >= 50 ? 'Needs Improvement' : 'Critical Issues Detected' }}
+               </span>
+            </div>
+            <p class="text-[#887777] text-sm max-w-lg leading-relaxed">
+              This score represents the aggregate health of the website based on visual stability, functional bugs, and performance indicators found during the test.
+            </p>
+         </div>
+
+         <div class="relative z-10 shrink-0">
+            <div class="w-40 h-40 relative">
+               <svg class="w-full h-full transform -rotate-90" viewBox="0 0 100 100">
+                  <circle class="text-[#2a2020]" stroke="currentColor" stroke-width="6" fill="transparent" cx="50" cy="50" [attr.r]="circleRadius"></circle>
+
+                  <circle
+                     class="transition-all duration-100 ease-linear stroke-current"
+                     [ngClass]="{
+                       'text-green-400 border-purple-500/20': (testResult.healthScore || 0) >= 90,
+                       'text-green-400 border-green-500/20': (testResult.healthScore || 0) >= 80 && (testResult.healthScore || 0) < 90,
+                       'text-yellow-400 border-yellow-500/20': (testResult.healthScore || 0) >= 50 && (testResult.healthScore || 0) < 80,
+                       'text-red-400 border-red-500/20': (testResult.healthScore || 0) < 50
+                     }"
+                     stroke-width="6"
+                     stroke-linecap="round"
+                     fill="transparent"
+                     cx="50" cy="50"
+                     [attr.r]="circleRadius"
+                     [attr.stroke-dasharray]="circleCircumference"
+                     [style.stroke-dashoffset]="calculateStrokeDashOffset()"
+                  ></circle>
+               </svg>
+
+               <div class="absolute inset-0 flex flex-col items-center justify-center text-center">
+                  <span class="text-4xl font-bold text-white tracking-tighter">
+                     {{ animatedScore }}
+                  </span>
+                  <span class="text-[10px] uppercase text-[#554444] font-bold tracking-widest mt-1">Score</span>
+               </div>
+               
+            </div>
+         </div>
+
+      </div>
+    </div>
+
+    <!-- Script -->
+
     <div class="bg-[#1a1415]/40 border border-[#322625] rounded-2xl overflow-hidden flex flex-col">
       <div class="p-4 border-b border-[#322625] bg-[#150f10] flex justify-between items-center">
-        <h3 class="font-semibold text-white">Test Script</h3>
+        <h3 class="font-semibold text-white flex items-center gap-2">
+          <span class="w-2 h-2 rounded-full bg-purple-500"></span>
+          Test Script
+        </h3>
         <button (click)="copyScript()" class="text-xs text-[#ff4c00] hover:text-white transition-colors">
           {{ copied ? 'Copied!' : 'Copy Code' }}
         </button>
@@ -433,8 +519,11 @@
     </div>
 
     <div class="bg-[#1a1415]/40 border border-[#322625] rounded-2xl overflow-hidden flex flex-col">
-      <div class="p-4 border-b border-[#322625] bg-[#150f10]">
-        <h3 class="font-semibold text-white">System Logs</h3>
+      <div class="p-4 border-b border-[#322625] bg-[#150f10] flex justify-between items-center">
+        <h3 class="font-semibold text-white flex items-center gap-2">
+          <span class="w-2 h-2 rounded-full bg-green-500"></span>
+          Test Logs
+        </h3>
       </div>
       <div class="overflow-y-auto custom-scrollbar p-4 bg-[#0d0d0d] space-y-1.5 font-mono text-[11px] max-h-[300px]">
         <div *ngFor="let log of testResult.logs" class="text-[#666666] border-b border-[#1a1a1a] pb-1 last:border-0">

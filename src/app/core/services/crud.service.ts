@@ -27,6 +27,7 @@ export interface TestResult {
   status: 'passed' | 'failed' | 'processing';
   logs: string[];
   screenshots: { url: string; caption: string }[];
+  healthScore?: number;
   script: string;
   bugs: BugItem[];
   recommendations: Recommendation[];

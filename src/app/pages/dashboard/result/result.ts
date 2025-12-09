@@ -1,4 +1,4 @@
-import { Component, OnInit, HostListener } from '@angular/core';
+import { Component, OnInit, HostListener, ViewChild, ElementRef, AfterViewInit, OnDestroy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ActivatedRoute } from '@angular/router';
 import { finalize } from 'rxjs/operators';
@@ -10,10 +10,10 @@ import { TestService, TestResult } from '../../../core/services/crud.service';
   imports: [CommonModule],
   templateUrl: './result.html',
 })
-export class ResultPageComponent implements OnInit {
+export class ResultPageComponent implements OnInit, AfterViewInit, OnDestroy {
   testResult: TestResult | null = null;
   
-  // ✅ STATE SEPARATION
+  // State variables
   loading = false; // Controls the Stepper (Re-run)
   fetching = false; // Controls Simple Spinner (History Load)
   
@@ -25,6 +25,17 @@ export class ResultPageComponent implements OnInit {
   selectedImage: any = null;
   isZoomed = false;
   zoomOrigin = 'center center';
+
+  // ✅ ANIMATION STATE
+  animatedScore = 0; // Starts at 0, animates to real score
+  private observer: IntersectionObserver | null = null;
+
+  // ✅ REFERENCE TO METER ELEMENT
+  @ViewChild('scoreMeter') scoreMeter!: ElementRef;
+
+  // Circle Gauge Config
+  readonly circleRadius = 45;
+  readonly circleCircumference = 2 * Math.PI * this.circleRadius;
 
   steps = [
     { id: 0, label: 'Initialize Environment', keyword: 'Initializing' },
@@ -47,16 +58,27 @@ export class ResultPageComponent implements OnInit {
     else this.errorMessage = 'Invalid Test ID.';
   }
 
+  // ✅ SETUP OBSERVER
+  ngAfterViewInit() {
+    this.setupIntersectionObserver();
+  }
+
+  ngOnDestroy() {
+    if (this.observer) {
+      this.observer.disconnect();
+    }
+  }
+
   loadResult(id: string): void {
-    // ✅ FIX: Use 'fetching' instead of 'loading'
     this.fetching = true; 
-    
     this.testService.getTestById(id)
-      .pipe(finalize(() => { 
-        this.fetching = false; 
-      }))
+      .pipe(finalize(() => { this.fetching = false; }))
       .subscribe({
-        next: (result) => (this.testResult = result),
+        next: (result) => {
+          this.testResult = result;
+          // Re-attach observer since DOM changes after data load
+          setTimeout(() => this.setupIntersectionObserver(), 100); 
+        },
         error: (err) => { 
           console.error(err); 
           this.errorMessage = 'Failed to load test result.'; 
@@ -64,7 +86,50 @@ export class ResultPageComponent implements OnInit {
       });
   }
 
-  // ... (Keep Toggle/Zoom Logic same as before) ...
+  // ✅ INTERSECTION OBSERVER LOGIC
+  private setupIntersectionObserver() {
+    if (!this.scoreMeter || this.observer) return;
+
+    this.observer = new IntersectionObserver((entries) => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting && this.testResult?.healthScore) {
+          this.animateScore(this.testResult.healthScore);
+          this.observer?.disconnect(); // Stop observing once triggered
+        }
+      });
+    }, { threshold: 0.5 }); // Trigger when 50% visible
+
+    this.observer.observe(this.scoreMeter.nativeElement);
+  }
+
+  // ✅ SMOOTH NUMBER ANIMATION (0 -> Target)
+  private animateScore(target: number) {
+    const duration = 1500; // 1.5 seconds
+    const steps = 60;
+    const increment = target / steps;
+    let current = 0;
+    
+    const timer = setInterval(() => {
+      current += increment;
+      if (current >= target) {
+        this.animatedScore = target;
+        clearInterval(timer);
+      } else {
+        this.animatedScore = Math.round(current);
+      }
+    }, duration / steps);
+  }
+
+  // ✅ UPDATED: Use animatedScore instead of static score
+  calculateStrokeDashOffset(): number {
+    const progress = this.animatedScore / 100;
+    return this.circleCircumference * (1 - progress);
+  }
+
+  // ==========================================================
+  // ZOOM & MODAL LOGIC
+  // ==========================================================
+
   toggleZoom(event: MouseEvent) {
     event.stopPropagation();
     if (this.isZoomed) { this.isZoomed = false; this.zoomOrigin = 'center center'; } 
@@ -114,7 +179,6 @@ export class ResultPageComponent implements OnInit {
     const url = this.testResult?.websiteUrl;
     if (!url) return;
 
-    // ✅ FIX: Only use 'loading' for Re-runs
     this.loading = true; 
     this.errorMessage = '';
     this.statusMessage = 'Initializing Re-run...';
@@ -132,6 +196,10 @@ export class ResultPageComponent implements OnInit {
               this.loading = false;
               this.statusMessage = ''; 
               this.currentStepIndex = this.steps.length; 
+              // Trigger animation for new result
+              setTimeout(() => {
+                if (this.testResult?.healthScore) this.animateScore(this.testResult.healthScore);
+              }, 500);
             }
           },
           error: (err) => {
