@@ -7,6 +7,8 @@ module.exports = {
   theme: {
     extend: {
       colors: {
+
+        brightPurple: "#8B5CF6",
         // 🎨 Core Brand Colors (Blue-Violet Futuristic)
         primary: {
           DEFAULT: "hsl(var(--primary))",

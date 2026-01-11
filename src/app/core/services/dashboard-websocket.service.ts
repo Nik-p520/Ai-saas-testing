@@ -3,6 +3,7 @@ import { Client, IMessage } from '@stomp/stompjs';
 import SockJS from 'sockjs-client/dist/sockjs';
 import { BehaviorSubject } from 'rxjs';
 import { getAuth } from 'firebase/auth'; // Auth Import
+import { environment } from '../../../environments/environment';
 
 @Injectable({
   providedIn: 'root',
@@ -34,7 +35,7 @@ export class DashboardWebSocketService {
     console.log("🔗 Connecting WebSocket for User:", uid);
 
     this.stompClient = new Client({
-      webSocketFactory: () => new SockJS('http://localhost:8080/ws'),
+      webSocketFactory: () => new SockJS(`${environment.springApi}/ws`),
       reconnectDelay: 3000,
       // Ab Headers ki zaroorat nahi hai (Kyunki URL unique hai)
     });

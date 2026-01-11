@@ -55,7 +55,8 @@ export class AuthService {
     }
 
     // 2. Backend check karo
-    const url = `http://localhost:8080/api/user/photo?t=${new Date().getTime()}`;
+    const url = `${environment.springApi}/api/user/photo?t=${new Date().getTime()}`;
+
     
     this.http.get(url, { responseType: 'blob' }).subscribe({
         next: (blob) => {

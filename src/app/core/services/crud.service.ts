@@ -1,6 +1,8 @@
 import { Injectable, NgZone } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
+import { environment } from '../../../environments/environment';
+
 
 // --- Interfaces (Kept from your original file) ---
 export interface BugItem {
@@ -38,7 +40,7 @@ export interface TestResult {
 })
 export class TestService {
   // Update this with your actual backend URL
-  private apiUrl = 'http://localhost:8080/api/test'; 
+  private apiUrl = `${environment.springApi}/api/test`;
 
   constructor(private http: HttpClient, private zone: NgZone) {}
 

@@ -426,7 +426,7 @@
     </div>
 
     <!-- Health Meter -->
-
+     
     <div #scoreMeter class="bg-[#1a1415]/40 border border-[#322625] rounded-2xl overflow-hidden flex flex-col relative group">
       
       <div class="p-4 border-b border-[#322625] bg-[#150f10] flex justify-between items-center relative z-20">
@@ -437,10 +437,10 @@
         
         <span class="text-xl font-black italic tracking-tighter"
               [ngClass]="{
-                'text-green-400 border-purple-500/20': (testResult.healthScore || 0) >= 90,
-                'text-green-400 border-green-500/20': (testResult.healthScore || 0) >= 80 && (testResult.healthScore || 0) < 90,
-                'text-yellow-400 border-yellow-500/20': (testResult.healthScore || 0) >= 50 && (testResult.healthScore || 0) < 80,
-                'text-red-400 border-red-500/20': (testResult.healthScore || 0) < 50
+                'text-[#673AB7]': (testResult.healthScore || 0) >= 90,
+                'text-green-500': (testResult.healthScore || 0) >= 80 && (testResult.healthScore || 0) < 90,
+                'text-yellow-500': (testResult.healthScore || 0) >= 50 && (testResult.healthScore || 0) < 80,
+                'text-red-500': (testResult.healthScore || 0) < 50
               }">
            {{ (testResult.healthScore || 0) >= 90 ? 'A+' : (testResult.healthScore || 0) >= 80 ? 'A' : (testResult.healthScore || 0) >= 60 ? 'B' : (testResult.healthScore || 0) >= 40 ? 'C' : 'F' }}
         </span>
@@ -452,14 +452,15 @@
             <div class="mb-4">
                <span class="text-xs font-bold uppercase tracking-widest px-3 py-1.5 rounded-md border bg-[#0d0d0d]"
                      [ngClass]="{
-                       'text-green-400 border-purple-500/20': (testResult.healthScore || 0) >= 90,
+                       'text-[#673AB7] border-[#673AB7]/20': (testResult.healthScore || 0) >= 90,
                        'text-green-400 border-green-500/20': (testResult.healthScore || 0) >= 80 && (testResult.healthScore || 0) < 90,
                        'text-yellow-400 border-yellow-500/20': (testResult.healthScore || 0) >= 50 && (testResult.healthScore || 0) < 80,
                        'text-red-400 border-red-500/20': (testResult.healthScore || 0) < 50
                      }">
-                  {{ (testResult.healthScore || 0) >= 90 ? 'Excellent Condition' : (testResult.healthScore || 0) >= 80 ? 'Good' : (testResult.healthScore || 0) >= 50 ? 'Needs Improvement' : 'Critical Issues Detected' }}
+                  {{ (testResult.healthScore || 0) >= 90 ? 'Perfect Condition' : (testResult.healthScore || 0) >= 80 ? 'Excellent Condition' : (testResult.healthScore || 0) >= 50 ? 'Needs Improvement' : 'Critical Issues Detected' }}
                </span>
             </div>
+            
             <p class="text-[#887777] text-sm max-w-lg leading-relaxed">
               This score represents the aggregate health of the website based on visual stability, functional bugs, and performance indicators found during the test.
             </p>
@@ -473,10 +474,10 @@
                   <circle
                      class="transition-all duration-100 ease-linear stroke-current"
                      [ngClass]="{
-                       'text-green-400 border-purple-500/20': (testResult.healthScore || 0) >= 90,
-                       'text-green-400 border-green-500/20': (testResult.healthScore || 0) >= 80 && (testResult.healthScore || 0) < 90,
-                       'text-yellow-400 border-yellow-500/20': (testResult.healthScore || 0) >= 50 && (testResult.healthScore || 0) < 80,
-                       'text-red-400 border-red-500/20': (testResult.healthScore || 0) < 50
+                       'text-[#673AB7]': (testResult.healthScore || 0) >= 90,
+                       'text-green-500': (testResult.healthScore || 0) >= 80 && (testResult.healthScore || 0) < 90,
+                       'text-yellow-500': (testResult.healthScore || 0) >= 50 && (testResult.healthScore || 0) < 80,
+                       'text-red-500': (testResult.healthScore || 0) < 50
                      }"
                      stroke-width="6"
                      stroke-linecap="round"
@@ -500,7 +501,7 @@
 
       </div>
     </div>
-
+        
     <!-- Script -->
 
     <div class="bg-[#1a1415]/40 border border-[#322625] rounded-2xl overflow-hidden flex flex-col">

@@ -1,13 +1,14 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
+import { environment } from '../../../environments/environment';
 
 @Injectable({
   providedIn: 'root'
 })
 export class DashboardService {
 
-  private BASE_URL = 'http://localhost:8080/api/dashboard';
+  private BASE_URL = `${environment.springApi}/api/dashboard`;
 
   constructor(private http: HttpClient) {}
 
