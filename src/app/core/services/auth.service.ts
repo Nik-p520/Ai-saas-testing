@@ -1,6 +1,5 @@
 import { Injectable } from '@angular/core';
 import { initializeApp } from 'firebase/app';
-import { environment } from '../../../environments/environment.prod';
 import { 
   getAuth, 
   createUserWithEmailAndPassword,
@@ -16,14 +15,14 @@ import {
   sendEmailVerification // ✅ Added this import
 } from 'firebase/auth';
 import { getStorage, ref, uploadBytes, getDownloadURL } from 'firebase/storage';
-import { environments } from '../../../environments/environment';
+import { environment } from '../../../environments/environment';
 import { BehaviorSubject, from, Observable, of } from 'rxjs';
 import { switchMap, catchError, tap } from 'rxjs/operators';
 import { HttpClient } from '@angular/common/http';
 
 @Injectable({ providedIn: 'root' })
 export class AuthService {
-  private app = initializeApp(environments.firebase);
+  private app = initializeApp(environment.firebase);
   private auth = getAuth(this.app);
   private storage = getStorage(this.app);
   
