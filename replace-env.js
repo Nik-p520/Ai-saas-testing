@@ -2,7 +2,10 @@ const fs = require('fs');
 const path = require('path');
 
 // Target the BUILT file in the dist folder
-const distPath = path.join(__dirname, 'dist/ai-saas-testing-platform/browser/assets/env.js');
+const pathsToTry = [
+  path.join(__dirname, 'dist/ai-saas-testing-platform/browser/assets/env.js'),
+  path.join(__dirname, 'dist/ai-saas-testing-platform/assets/env.js')
+];
 
 if (fs.existsSync(distPath)) {
     let content = fs.readFileSync(distPath, 'utf8');
