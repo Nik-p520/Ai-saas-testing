@@ -1,3 +1,10 @@
+[build]
+  # This ensures the Node script runs AFTER the Angular build
+  command = "ng build && node replace-env.js"
+  # Double check this matches your actual dist folder structure
+  publish = "dist/ai-saas-testing-platform/browser"
+
+
 [[redirects]]
   from = "/*"
   to = "/index.html"
