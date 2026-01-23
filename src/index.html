@@ -13,6 +13,12 @@
 <body>
   <app-root></app-root>
 
-  <script src="assets/env.js"></script>
+  <script>
+  if (location.hostname === 'localhost') {
+    document.write('<script src="assets/env.local.js"><\/script>');
+  } else {
+    document.write('<script src="assets/env.js"><\/script>');
+  }
+  </script>
 </body>
 </html>
