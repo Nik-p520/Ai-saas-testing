@@ -84,49 +84,68 @@ export class TestService {
    * This listens for "PROGRESS", "COMPLETED", or "ERROR" events.
    */
   getTestStream(testId: string): Observable<{ type: string; message?: string; data?: TestResult }> {
-    return new Observable(observer => {
-      const url = `${this.apiUrl}/stream/${testId}`;
-      const eventSource = new EventSource(url);
+  return new Observable(observer => {
+    const url = `${this.apiUrl}/stream/${testId}`;
+    const eventSource = new EventSource(url);
 
-      // A. Listen for Progress Updates (Text messages)
-      eventSource.addEventListener('PROGRESS', (event: any) => {
-        this.zone.run(() => {
-          observer.next({ type: 'PROGRESS', message: event.data });
+    // ✅ PROGRESS → always STRING
+    eventSource.addEventListener('PROGRESS', (event: any) => {
+      this.zone.run(() => {
+        observer.next({
+          type: 'PROGRESS',
+          message: event.data
         });
       });
-
-      // B. Listen for Completion (Returns the full TestResult object)
-      eventSource.addEventListener('COMPLETED', (event: any) => {
-        this.zone.run(() => {
-          const result: TestResult = JSON.parse(event.data);
-          observer.next({ type: 'COMPLETED', data: result });
-          observer.complete();
-          eventSource.close();
-        });
-      });
-
-      // C. Listen for Explicit Errors from Backend
-      eventSource.addEventListener('ERROR', (event: any) => {
-        this.zone.run(() => {
-          observer.error(event.data);
-          eventSource.close();
-        });
-      });
-
-      // D. Handle Network Errors
-      eventSource.onerror = (error) => {
-        this.zone.run(() => {
-          if (eventSource.readyState !== 0) {
-            observer.error('Connection lost');
-            eventSource.close();
-          }
-        });
-      };
-
-      // Cleanup when component unsubscribes
-      return () => {
-        eventSource.close();
-      };
     });
-  }
+
+    // ✅ COMPLETED → STRING or OBJECT (safe handling)
+    eventSource.addEventListener('COMPLETED', (event: any) => {
+      this.zone.run(() => {
+        let result: TestResult;
+
+        try {
+          // If backend sent JSON string
+          result = typeof event.data === 'string'
+            ? JSON.parse(event.data)
+            : event.data;
+        } catch (e) {
+          console.error('❌ Failed to parse COMPLETED event:', event.data);
+          observer.error('Invalid test result received');
+          eventSource.close();
+          return;
+        }
+
+        observer.next({
+          type: 'COMPLETED',
+          data: result
+        });
+
+        observer.complete();
+        eventSource.close();
+      });
+    });
+
+    // ✅ BACKEND ERROR EVENT
+    eventSource.addEventListener('ERROR', (event: any) => {
+      this.zone.run(() => {
+        observer.error(event.data);
+        eventSource.close();
+      });
+    });
+
+    // ✅ NETWORK / STREAM ERROR
+    eventSource.onerror = () => {
+      this.zone.run(() => {
+        observer.error('Connection lost');
+        eventSource.close();
+      });
+    };
+
+    // Cleanup
+    return () => {
+      eventSource.close();
+    };
+  });
+}
+
 }
