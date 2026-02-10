@@ -63,6 +63,12 @@ export class ProfileComponent implements OnInit {
   }
 
   fetchUserPhoto() {
+    if (this.userData.avatar) {
+        this.isLoadingData = false;
+        this.isImageLoading = false;
+        return; 
+    }
+
     this.isLoadingData = true;
     const url = `${(window as any).__env.SPRING_API}/api/user/photo?t=${new Date().getTime()}`;
     

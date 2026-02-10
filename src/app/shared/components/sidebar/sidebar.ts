@@ -63,6 +63,13 @@ export class AppSidebarComponent implements OnInit {
   }
 
   fetchUserPhoto() {
+    
+    if (this.userAvatar) {
+        this.isLoading = false;
+        this.isImageLoading = false;
+        return; 
+    }
+
     this.isLoading = true;
     this.isImageLoading = true; // Reset image loading state
     
