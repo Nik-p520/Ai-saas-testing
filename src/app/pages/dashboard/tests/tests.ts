@@ -2,6 +2,7 @@ import { Component } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
+import { Subscription } from 'rxjs';
 import { TestService, TestResult } from '../../../core/services/crud.service';
 
 @Component({
@@ -14,7 +15,9 @@ export class Tests {
   websiteUrl: string = '';
   username: string = '';
   password: string = '';
-  
+
+  private streamSubscription?: Subscription;
+
   isTestingInProgress: boolean = false;
   websiteUrlTouched: boolean = false;
   errorMessage: string = '';
@@ -37,11 +40,17 @@ export class Tests {
   constructor(private testService: TestService, private router: Router) {}
 
   handleTest() {
+    if (this.isTestingInProgress) return;
+
     this.websiteUrlTouched = true;
 
     if (!this.websiteUrl.trim()) {
       this.errorMessage = 'Website URL is required.';
       return;
+    }
+
+    if (this.streamSubscription) {
+        this.streamSubscription.unsubscribe();
     }
 
     this.errorMessage = '';
