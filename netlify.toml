@@ -4,6 +4,11 @@
   # Double check this matches your actual dist folder structure
   publish = "dist/ai-saas-testing-platform/browser"
 
+[[redirects]]
+  from = "/ws/*"
+  to = "https://ai-saas-testing-backend.onrender.com/ws/:splat"
+  status = 200
+  force = true
 
 [[redirects]]
   from = "/*"
