@@ -27,9 +27,7 @@ pathsToTry.forEach((filePath) => {
     vars.forEach(v => {
       // Specifically look for the NG_APP_ prefix from your Netlify settings
       const value = process.env[`NG_APP_${v}`] || process.env[v] || '';
-      const regex = new RegExp(`\\$\\{${v}\\}`, 'g');
-    
-      console.log(`Checking ${v}... Found value: ${value ? 'YES' : 'EMPTY'}`);
+      const regex = new RegExp(`\\$${v}`, 'g');
       content = content.replace(regex, value);
     });
 
