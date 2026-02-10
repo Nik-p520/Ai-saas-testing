@@ -66,7 +66,7 @@ export class AppSidebarComponent implements OnInit {
     this.isLoading = true;
     this.isImageLoading = true; // Reset image loading state
     
-    const url = `http://localhost:8080/api/user/photo?t=${new Date().getTime()}`;
+    const url = `${(window as any).__env.SPRING_API}/api/user/photo?t=${new Date().getTime()}`;
     
     this.http.get(url, { responseType: 'blob' }).subscribe({
       next: (blob) => {
