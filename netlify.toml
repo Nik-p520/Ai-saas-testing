@@ -5,6 +5,12 @@
   publish = "dist/ai-saas-testing-platform/browser"
 
 [[redirects]]
+  from = "/api/*"
+  to = "https://ai-saas-testing-backend.onrender.com/api/:splat"
+  status = 200
+  force = true  
+
+[[redirects]]
   from = "/ws/*"
   to = "https://ai-saas-testing-backend.onrender.com/ws/:splat"
   status = 200
