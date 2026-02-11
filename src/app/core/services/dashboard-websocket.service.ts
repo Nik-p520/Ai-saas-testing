@@ -1,15 +1,16 @@
-import { Injectable } from '@angular/core';
+import { Injectable, OnDestroy } from '@angular/core';
 import { Client, IMessage } from '@stomp/stompjs';
 import SockJS from 'sockjs-client/dist/sockjs';
 import { BehaviorSubject } from 'rxjs';
-import { getAuth } from 'firebase/auth'; // Auth Import
+import { getAuth, onAuthStateChanged } from 'firebase/auth'; 
 import { environment } from '../../../environments/environment';
 
 @Injectable({
   providedIn: 'root',
 })
-export class DashboardWebSocketService {
-  private stompClient: Client = new Client();
+export class DashboardWebSocketService implements OnDestroy {
+  private stompClient: Client | null = null;
+  private isConnecting = false; // ✅ Connection Lock
 
   stats$ = new BehaviorSubject<any>(null);
   trends$ = new BehaviorSubject<any>(null);
@@ -17,52 +18,77 @@ export class DashboardWebSocketService {
   comparison$ = new BehaviorSubject<any>(null);
 
   constructor() {
-    this.connect();
+    // Turant connect karne ki jagah Auth state ka wait karein
+    const auth = getAuth();
+    onAuthStateChanged(auth, (user) => {
+      if (user) {
+        this.connect(user.uid);
+      } else {
+        this.disconnect();
+      }
+    });
   }
 
-  async connect() {
-    const auth = getAuth();
-    
-    // 🛑 Wait for User to be Ready (Important!)
-    let uid = auth.currentUser?.uid;
-    
-    if (!uid) {
-        console.log("⚠️ No User Logged In, waiting...");
-        // Agar user login nahi hai to connect mat karo, ya retry logic lagao
-        return; 
+  async connect(uid: string) {
+    // 🛑 Agar pehle se connect ho raha hai ya connected hai, toh return
+    if (this.isConnecting || (this.stompClient && this.stompClient.active)) {
+      return;
     }
 
-    console.log("🔗 Connecting WebSocket for User:", uid);
+    this.isConnecting = true;
+    console.log("🔗 Attempting WebSocket Connection for User:", uid);
 
     this.stompClient = new Client({
       webSocketFactory: () => new SockJS(`${environment.springApi}/ws`),
-      reconnectDelay: 3000,
-      // Ab Headers ki zaroorat nahi hai (Kyunki URL unique hai)
+      reconnectDelay: 5000, // ✅ 5 second ka gap (429 error se bachne ke liye)
+      heartbeatIncoming: 4000,
+      heartbeatOutgoing: 4000,
     });
 
     this.stompClient.onConnect = () => {
-      console.log('✅ Connected! Subscribing to User Topics...');
+      this.isConnecting = false;
+      console.log('✅ Connected to WebSocket!');
 
-      // 🔥 DYNAMIC SUBSCRIPTION: /topic/stats/{USER_ID}
-      
-      this.stompClient.subscribe(`/topic/stats/${uid}`, (msg: IMessage) => {
+      this.stompClient?.subscribe(`/topic/stats/${uid}`, (msg: IMessage) => {
         this.stats$.next(JSON.parse(msg.body));
       });
 
-      this.stompClient.subscribe(`/topic/trends/${uid}`, (msg: IMessage) => {
+      this.stompClient?.subscribe(`/topic/trends/${uid}`, (msg: IMessage) => {
         console.log("📈 Trends Data Received");
         this.trends$.next(JSON.parse(msg.body));
       });
 
-      this.stompClient.subscribe(`/topic/distribution/${uid}`, (msg: IMessage) => {
+      this.stompClient?.subscribe(`/topic/distribution/${uid}`, (msg: IMessage) => {
         this.distribution$.next(JSON.parse(msg.body));
       });
       
-      this.stompClient.subscribe(`/topic/comparisons/${uid}`, (msg: IMessage) => {
+      this.stompClient?.subscribe(`/topic/comparisons/${uid}`, (msg: IMessage) => {
         this.comparison$.next(JSON.parse(msg.body)); 
       });
     };
 
+    this.stompClient.onStompError = (frame) => {
+      this.isConnecting = false;
+      console.error('❌ STOMP Error:', frame);
+    };
+
+    this.stompClient.onWebSocketClose = () => {
+      this.isConnecting = false;
+      console.log('🔌 WebSocket Closed');
+    };
+
     this.stompClient.activate();
+  }
+
+  disconnect() {
+    if (this.stompClient) {
+      this.stompClient.deactivate();
+      this.stompClient = null;
+      this.isConnecting = false;
+    }
+  }
+
+  ngOnDestroy() {
+    this.disconnect();
   }
 }
