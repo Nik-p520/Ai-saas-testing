@@ -1,6 +1,7 @@
 import { Injectable, NgZone } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { Observable } from 'rxjs';
+import { Observable, throwError } from 'rxjs'; // ✅ throwError add kiya
+import { catchError } from 'rxjs/operators';
 import { environment } from '../../../environments/environment';
 
 
@@ -61,7 +62,16 @@ export class TestService {
   /** Delete a result */
   deleteResult(id: string): Observable<void> {
     const url = `${this.apiUrl}/delete/${id}`;
-    return this.http.delete<void>(url);
+    return this.http.delete<void>(url).pipe(
+      catchError(err => {
+        // Agar pehle hi delete ho chuka hai (404), toh use error mat samjho
+        if (err.status === 404) {
+          console.warn("Item already deleted or not found.");
+          return []; 
+        }
+        return throwError(() => err);
+      })
+    );
   }
 
   // ============================================================
@@ -83,66 +93,43 @@ export class TestService {
    * Step 2: Subscribe to the Live Stream using Server-Sent Events (SSE).
    * This listens for "PROGRESS", "COMPLETED", or "ERROR" events.
    */
-  getTestStream(testId: string): Observable<{ type: string; message?: string; data?: TestResult }> {
+ // ... getAllResults, getTestById, deleteResult wahi rahenge
+
+getTestStream(testId: string): Observable<{ type: string; message?: string; data?: TestResult }> {
   return new Observable(observer => {
     const url = `${this.apiUrl}/stream/${testId}`;
     const eventSource = new EventSource(url);
 
-    // ✅ PROGRESS → always STRING
     eventSource.addEventListener('PROGRESS', (event: any) => {
       this.zone.run(() => {
-        observer.next({
-          type: 'PROGRESS',
-          message: event.data
-        });
+        observer.next({ type: 'PROGRESS', message: event.data });
       });
     });
 
-    // ✅ COMPLETED → STRING or OBJECT (safe handling)
     eventSource.addEventListener('COMPLETED', (event: any) => {
       this.zone.run(() => {
-        let result: TestResult;
-
         try {
-          // If backend sent JSON string
-          result = typeof event.data === 'string'
-            ? JSON.parse(event.data)
-            : event.data;
+          const result = typeof event.data === 'string' ? JSON.parse(event.data) : event.data;
+          observer.next({ type: 'COMPLETED', data: result });
+          eventSource.close(); // ✅ Connection band kiya
+          observer.complete();
         } catch (e) {
-          console.error('❌ Failed to parse COMPLETED event:', event.data);
-          observer.error('Invalid test result received');
+          observer.error('Parse error');
           eventSource.close();
-          return;
         }
-
-        observer.next({
-          type: 'COMPLETED',
-          data: result
-        });
-
-        observer.complete();
-        eventSource.close();
       });
     });
 
-    // ✅ BACKEND ERROR EVENT
-    eventSource.addEventListener('ERROR', (event: any) => {
-      this.zone.run(() => {
-        observer.error(event.data);
-        eventSource.close();
-      });
-    });
-
-    // ✅ NETWORK / STREAM ERROR
     eventSource.onerror = () => {
       this.zone.run(() => {
+        eventSource.close(); // ✅ Error aate hi connection kato (429 prevention)
         observer.error('Connection lost');
-        eventSource.close();
       });
     };
 
-    // Cleanup
+    // ✅ TEARDOWN: Jab component destroy ho ya handleTest mein unsubscribe ho
     return () => {
+      console.log("Cleaning up zombie connection...");
       eventSource.close();
     };
   });

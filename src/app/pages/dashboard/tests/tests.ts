@@ -1,9 +1,9 @@
-import { Component } from '@angular/core';
+import { Component, OnDestroy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
 import { Subscription } from 'rxjs';
-import { TestService, TestResult } from '../../../core/services/crud.service';
+import { TestService } from '../../../core/services/crud.service';
 
 @Component({
   selector: 'app-tests',
@@ -11,20 +11,18 @@ import { TestService, TestResult } from '../../../core/services/crud.service';
   imports: [CommonModule, FormsModule],
   templateUrl: './tests.html',
 })
-export class Tests {
+export class Tests implements OnDestroy {
   websiteUrl: string = '';
   username: string = '';
   password: string = '';
 
-  private streamSubscription?: Subscription;
+  private streamSubscription?: Subscription; // ✅ Tracks the active stream
 
   isTestingInProgress: boolean = false;
   websiteUrlTouched: boolean = false;
   errorMessage: string = '';
   statusMessage: string = '';
 
-  // ✅ NEW: Define the specific steps for the Progress Bar
-  // The 'keyword' helps us match the backend message to the UI step
   steps = [
     { id: 0, label: 'Initialize Environment', keyword: 'Initializing' },
     { id: 1, label: 'Analyze & Generate Script', keyword: 'Generating' },
@@ -34,21 +32,21 @@ export class Tests {
     { id: 5, label: 'Finalize Report', keyword: 'Saving' }
   ];
   
-  // Tracks the active step index (0 to 5)
   currentStepIndex = 0;
 
   constructor(private testService: TestService, private router: Router) {}
 
   handleTest() {
+    // 🛑 STOP: Agar pehle se test chal raha hai toh naya start mat karo
     if (this.isTestingInProgress) return;
 
     this.websiteUrlTouched = true;
-
     if (!this.websiteUrl.trim()) {
       this.errorMessage = 'Website URL is required.';
       return;
     }
 
+    // ✅ Clean up purani stream agar koi bachi ho (429 prevention)
     if (this.streamSubscription) {
         this.streamSubscription.unsubscribe();
     }
@@ -56,14 +54,11 @@ export class Tests {
     this.errorMessage = '';
     this.isTestingInProgress = true;
     this.statusMessage = 'Initializing test environment...';
-    this.currentStepIndex = 0; // Reset step
+    this.currentStepIndex = 0;
 
     const requestData = {
       url: this.websiteUrl,
-      credentials: {
-        username: this.username,
-        password: this.password
-      }
+      credentials: { username: this.username, password: this.password }
     };
 
     this.testService.startTest(requestData).subscribe({
@@ -79,36 +74,41 @@ export class Tests {
   }
 
   listenToProgress(testId: string): void {
-    this.testService.getTestStream(testId).subscribe({
+    // ⬇️ IMPORTANT: Assign subscription taaki ise manage kiya ja sake
+    this.streamSubscription = this.testService.getTestStream(testId).subscribe({
       next: (event: any) => {
         if (event.type === 'PROGRESS') {
           this.statusMessage = event.message || 'Processing...';
-          
-          // ✅ UPDATE STEP: Check which keyword matches the incoming message
           this.updateActiveStep(this.statusMessage);
-
         } else if (event.type === 'COMPLETED' && event.data) {
           console.log('✅ Test Result Received:', event.data);
-          this.currentStepIndex = this.steps.length; // Mark all done
+          this.currentStepIndex = this.steps.length;
+          this.isTestingInProgress = false; // ✅ Reset state
           this.router.navigate(['/dashboard/result', event.data.id]);
         }
       },
       error: (err: any) => {
         console.error('Stream Error:', err);
-        this.errorMessage = 'Connection lost during test execution.';
-        this.isTestingInProgress = false;
+        // 429 error se bachne ke liye thoda delay dekar reset karein
+        setTimeout(() => {
+          this.errorMessage = 'Connection lost. Retrying...';
+          this.isTestingInProgress = false;
+        }, 3000);
       }
     });
   }
 
-  // Helper to move the progress bar forward
   private updateActiveStep(message: string) {
     const foundIndex = this.steps.findIndex(step => message.includes(step.keyword));
-    if (foundIndex !== -1) {
-      // Only move forward, never backward
-      if (foundIndex > this.currentStepIndex) {
+    if (foundIndex !== -1 && foundIndex > this.currentStepIndex) {
         this.currentStepIndex = foundIndex;
-      }
+    }
+  }
+
+  // ✅ Clean up when leaving the page
+  ngOnDestroy() {
+    if (this.streamSubscription) {
+      this.streamSubscription.unsubscribe();
     }
   }
 }
