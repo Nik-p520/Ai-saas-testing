@@ -95,44 +95,48 @@ export class TestService {
    */
  // ... getAllResults, getTestById, deleteResult wahi rahenge
 
-getTestStream(testId: string): Observable<{ type: string; message?: string; data?: TestResult }> {
-  return new Observable(observer => {
-    const url = `${this.apiUrl}/stream/${testId}`;
-    const eventSource = new EventSource(url);
+  getTestStream(testId: string): Observable<{ type: string; message?: string; data?: TestResult }> {
+    return new Observable(observer => {
+      const url = `${this.apiUrl}/stream/${testId}`;
+      const eventSource = new EventSource(url);
 
-    eventSource.addEventListener('PROGRESS', (event: any) => {
-      this.zone.run(() => {
-        observer.next({ type: 'PROGRESS', message: event.data });
+      // 1. Progress Updates
+      eventSource.addEventListener('PROGRESS', (event: any) => {
+        this.zone.run(() => observer.next({ type: 'PROGRESS', message: event.data }));
       });
-    });
 
-    eventSource.addEventListener('COMPLETED', (event: any) => {
-      this.zone.run(() => {
-        try {
-          const result = typeof event.data === 'string' ? JSON.parse(event.data) : event.data;
-          observer.next({ type: 'COMPLETED', data: result });
-          eventSource.close(); // ✅ Connection band kiya
-          observer.complete();
-        } catch (e) {
-          observer.error('Parse error');
+      // 2. Completion - Connection yahan close hona chahiye
+      eventSource.addEventListener('COMPLETED', (event: any) => {
+        this.zone.run(() => {
+          try {
+            const result = typeof event.data === 'string' ? JSON.parse(event.data) : event.data;
+            observer.next({ type: 'COMPLETED', data: result });
+            eventSource.close(); // ✅ Success cleanup
+            observer.complete();
+          } catch (e) {
+            console.error('Parse error:', e);
+            eventSource.close();
+            observer.error('Invalid result format');
+          }
+        });
+      });
+
+      // 3. Error Handling - 429 prevention
+      eventSource.onerror = () => {
+        this.zone.run(() => {
+          console.log("Cleaning up zombie connection..."); //
+          eventSource.close(); // ✅ Error cleanup
+          observer.error('Connection lost');
+        });
+      };
+
+      // 4. TEARDOWN: Jab frontend unsubscribe karega
+      return () => {
+        if (eventSource.readyState !== 2) { // 2 = CLOSED
           eventSource.close();
         }
-      });
+      };
     });
-
-    eventSource.onerror = () => {
-      this.zone.run(() => {
-        eventSource.close(); // ✅ Error aate hi connection kato (429 prevention)
-        observer.error('Connection lost');
-      });
-    };
-
-    // ✅ TEARDOWN: Jab component destroy ho ya handleTest mein unsubscribe ho
-    return () => {
-      console.log("Cleaning up zombie connection...");
-      eventSource.close();
-    };
-  });
-}
+  }
 
 }
