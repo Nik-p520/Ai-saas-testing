@@ -96,51 +96,60 @@ export class TestService {
  // ... getAllResults, getTestById, deleteResult wahi rahenge
 
   getTestStream(testId: string): Observable<{ type: string; message?: string; data?: TestResult }> {
-    return new Observable(observer => {
-      const url = `${this.apiUrl}/stream/${testId}`;
-      const eventSource = new EventSource(url);
+  return new Observable(observer => {
+    const url = `${this.apiUrl}/stream/${testId}`;
+    const eventSource = new EventSource(url);
 
-      // 1. Progress Updates
-      eventSource.addEventListener('PROGRESS', (event: any) => {
-        this.zone.run(() => observer.next({ type: 'PROGRESS', message: event.data }));
-      });
-
-      // 2. Completion - Connection yahan close hona chahiye
-      eventSource.addEventListener('COMPLETED', (event: any) => {
-        this.zone.run(() => {
-          try {
-            const result = typeof event.data === 'string' ? JSON.parse(event.data) : event.data;
-            observer.next({ type: 'COMPLETED', data: result });
-            eventSource.close(); // ✅ Success cleanup
-            observer.complete();
-          } catch (e) {
-            console.error('Parse error:', e);
-            eventSource.close();
-            observer.error('Invalid result format');
-          }
-        });
-      });
-
-      // 3. Error Handling - 429 prevention
-      eventSource.onerror = () => {
-        this.zone.run(() => {
-          if (eventSource.readyState === 2) {
-            observer.complete();
-          } else {
-            console.warn("Connection glitched, attempt reconnecting or handle error...");
-            eventSource.close();
-            observer.error('Connection lost'); 
-          }
-        });
-      };
-
-      // 4. TEARDOWN: Jab frontend unsubscribe karega
-      return () => {
-        if (eventSource.readyState !== 2) { // 2 = CLOSED
-          eventSource.close();
-        }
-      };
+    // 1. Progress Updates
+    eventSource.addEventListener('PROGRESS', (event: any) => {
+      this.zone.run(() => observer.next({ type: 'PROGRESS', message: event.data }));
     });
-  }
+
+    // ✅ 2. Handle Heartbeat (Ping) - This keeps the connection alive
+    eventSource.addEventListener('ping', (event: any) => {
+      // We don't need to do anything with pings, just log for debugging if needed
+      console.log('💓 Heartbeat received from server');
+    });
+
+    // 3. Completion
+    eventSource.addEventListener('COMPLETED', (event: any) => {
+      this.zone.run(() => {
+        try {
+          const result = typeof event.data === 'string' ? JSON.parse(event.data) : event.data;
+          observer.next({ type: 'COMPLETED', data: result });
+          eventSource.close();
+          observer.complete();
+        } catch (e) {
+          console.error('Parse error:', e);
+          eventSource.close();
+          observer.error('Invalid result format');
+        }
+      });
+    });
+
+    // ✅ 4. Improved Error Handling
+    eventSource.onerror = () => {
+      this.zone.run(() => {
+        // If readyState is 0 (CONNECTING), the browser is auto-reconnecting.
+        // DO NOT call observer.error() yet.
+        if (eventSource.readyState === 0) {
+          console.warn("Connection glitched. Browser is attempting to reconnect...");
+          return; 
+        }
+
+        // If it's truly 2 (CLOSED), then clean up.
+        console.error("Cleaning up zombie connection...");
+        eventSource.close();
+        observer.error('Connection lost');
+      });
+    };
+
+    return () => {
+      if (eventSource.readyState !== 2) {
+        eventSource.close();
+      }
+    };
+  });
+}
 
 }

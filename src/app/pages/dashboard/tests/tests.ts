@@ -2,7 +2,8 @@ import { Component, OnDestroy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
-import { Subscription } from 'rxjs';
+import { Subscription, Subject } from 'rxjs';
+import { takeUntil,retry } from 'rxjs/operators';
 import { TestService } from '../../../core/services/crud.service';
 
 @Component({
@@ -17,6 +18,7 @@ export class Tests implements OnDestroy {
   password: string = '';
 
   private streamSubscription?: Subscription; // ✅ Tracks the active stream
+  private destroy$ = new Subject<void>();
 
   isTestingInProgress: boolean = false;
   websiteUrlTouched: boolean = false;
@@ -74,28 +76,32 @@ export class Tests implements OnDestroy {
   }
 
   listenToProgress(testId: string): void {
-    // ⬇️ IMPORTANT: Assign subscription taaki ise manage kiya ja sake
-    this.streamSubscription = this.testService.getTestStream(testId).subscribe({
-      next: (event: any) => {
-        if (event.type === 'PROGRESS') {
-          this.statusMessage = event.message || 'Processing...';
-          this.updateActiveStep(this.statusMessage);
-        } else if (event.type === 'COMPLETED' && event.data) {
-          console.log('✅ Test Result Received:', event.data);
-          this.currentStepIndex = this.steps.length;
-          this.isTestingInProgress = false; // ✅ Reset state
-          this.router.navigate(['/dashboard/result', event.data.id]);
-        }
-      },
-      error: (err: any) => {
-        console.error('Stream Error:', err);
-        // 429 error se bachne ke liye thoda delay dekar reset karein
-        setTimeout(() => {
-          this.errorMessage = 'Connection lost. Retrying...';
+    this.streamSubscription = this.testService.getTestStream(testId)
+      .pipe(
+        // ✅ The "Connection Lost" Fix: 
+        // If the stream errors due to a network glitch, wait 2s and try again (up to 3 times).
+        retry({ count: 3, delay: 2000 }),
+        takeUntil(this.destroy$)
+      )
+      .subscribe({
+        next: (event: any) => {
+          if (event.type === 'PROGRESS') {
+            this.statusMessage = event.message || 'Processing...';
+            this.updateActiveStep(this.statusMessage);
+          } else if (event.type === 'COMPLETED' && event.data) {
+            console.log('✅ Test Result Received:', event.data);
+            this.currentStepIndex = this.steps.length;
+            this.isTestingInProgress = false;
+            this.router.navigate(['/dashboard/result', event.data.id]);
+          }
+        },
+        error: (err: any) => {
+          // This only triggers if ALL retries fail
+          console.error('Fatal Stream Error:', err);
+          this.errorMessage = 'Connection lost permanently. Please check your network and try again.';
           this.isTestingInProgress = false;
-        }, 3000);
-      }
-    });
+        }
+      });
   }
 
   private updateActiveStep(message: string) {
