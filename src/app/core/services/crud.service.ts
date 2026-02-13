@@ -124,9 +124,13 @@ export class TestService {
       // 3. Error Handling - 429 prevention
       eventSource.onerror = () => {
         this.zone.run(() => {
-          console.log("Cleaning up zombie connection..."); //
-          eventSource.close(); // ✅ Error cleanup
-          observer.error('Connection lost');
+          if (eventSource.readyState === 2) {
+            observer.complete();
+          } else {
+            console.warn("Connection glitched, attempt reconnecting or handle error...");
+            eventSource.close();
+            observer.error('Connection lost'); 
+          }
         });
       };
 
