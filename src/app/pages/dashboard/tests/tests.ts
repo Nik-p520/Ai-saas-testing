@@ -76,33 +76,39 @@ export class Tests implements OnDestroy {
   }
 
   listenToProgress(testId: string): void {
-    this.streamSubscription = this.testService.getTestStream(testId)
-      .pipe(
-        // ✅ The "Connection Lost" Fix: 
-        // If the stream errors due to a network glitch, wait 2s and try again (up to 3 times).
-        retry({ count: 3, delay: 2000 }),
-        takeUntil(this.destroy$)
-      )
-      .subscribe({
-        next: (event: any) => {
-          if (event.type === 'PROGRESS') {
-            this.statusMessage = event.message || 'Processing...';
-            this.updateActiveStep(this.statusMessage);
-          } else if (event.type === 'COMPLETED' && event.data) {
-            console.log('✅ Test Result Received:', event.data);
-            this.currentStepIndex = this.steps.length;
-            this.isTestingInProgress = false;
-            this.router.navigate(['/dashboard/result', event.data.id]);
-          }
-        },
-        error: (err: any) => {
-          // This only triggers if ALL retries fail
-          console.error('Fatal Stream Error:', err);
-          this.errorMessage = 'Connection lost permanently. Please check your network and try again.';
+  this.streamSubscription = this.testService.getTestStream(testId)
+    .pipe(
+      retry({ count: 2, delay: 5000 }),
+      takeUntil(this.destroy$)
+    )
+    .subscribe({
+      next: (event: any) => {
+        // ✅ Handle the new 'STATUS' type (INIT and Reconnecting)
+        if (event.type === 'STATUS') {
+          this.statusMessage = event.message;
+        } 
+        else if (event.type === 'PROGRESS') {
+          this.statusMessage = event.message || 'Processing...';
+          this.updateActiveStep(this.statusMessage);
+        } 
+        else if (event.type === 'COMPLETED' && event.data) {
+          console.log('✅ Test Result Received:', event.data);
+          this.currentStepIndex = this.steps.length;
           this.isTestingInProgress = false;
+          
+          // ✅ Explicitly stop the stream before navigating
+          if (this.streamSubscription) this.streamSubscription.unsubscribe();
+          
+          this.router.navigate(['/dashboard/result', event.data.id]);
         }
-      });
-  }
+      },
+      error: (err: any) => {
+        console.error('Fatal Stream Error:', err);
+        this.errorMessage = 'Connection lost. Please check the Render logs.';
+        this.isTestingInProgress = false;
+      }
+    });
+}
 
   private updateActiveStep(message: string) {
     const foundIndex = this.steps.findIndex(step => message.includes(step.keyword));

@@ -100,6 +100,13 @@ export class TestService {
     const url = `${this.apiUrl}/stream/${testId}`;
     const eventSource = new EventSource(url);
 
+    eventSource.addEventListener('INIT', (event: any) => {
+      this.zone.run(() => {
+        console.log('🚀 Stream initialized: ' + event.data);
+        observer.next({ type: 'STATUS', message: 'Connected to test engine' });
+      });
+    });
+
     // 1. Progress Updates
     eventSource.addEventListener('PROGRESS', (event: any) => {
       this.zone.run(() => observer.next({ type: 'PROGRESS', message: event.data }));
